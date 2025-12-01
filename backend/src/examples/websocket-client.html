@@ -1,287 +1,297 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WebSocket Client Test</title>
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #1a1a2e;
-      color: #eee;
-      padding: 20px;
-      min-height: 100vh;
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    h1 {
-      color: #00d9ff;
-      margin-bottom: 20px;
-    }
-    .status {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      border-radius: 20px;
-      background: #16213e;
-      margin-bottom: 20px;
-    }
-    .status-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: #ff4757;
-    }
-    .status-dot.connected {
-      background: #2ed573;
-    }
-    .card {
-      background: #16213e;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-    .card h2 {
-      color: #00d9ff;
-      margin-bottom: 15px;
-      font-size: 1.2rem;
-    }
-    input, button {
-      padding: 10px 16px;
-      border-radius: 8px;
-      border: none;
-      font-size: 14px;
-    }
-    input {
-      background: #0f0f23;
-      color: #fff;
-      width: 100%;
-      margin-bottom: 10px;
-    }
-    button {
-      background: #00d9ff;
-      color: #1a1a2e;
-      cursor: pointer;
-      font-weight: 600;
-      margin-right: 10px;
-      margin-bottom: 10px;
-    }
-    button:hover {
-      background: #00b8d9;
-    }
-    button.disconnect {
-      background: #ff4757;
-      color: #fff;
-    }
-    #events {
-      background: #0f0f23;
-      border-radius: 8px;
-      padding: 15px;
-      max-height: 400px;
-      overflow-y: auto;
-      font-family: monospace;
-      font-size: 13px;
-    }
-    .event {
-      padding: 8px;
-      border-bottom: 1px solid #16213e;
-      word-break: break-all;
-    }
-    .event:last-child {
-      border-bottom: none;
-    }
-    .event-type {
-      color: #00d9ff;
-      font-weight: bold;
-    }
-    .event-time {
-      color: #666;
-      font-size: 11px;
-    }
-    .rooms {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .room-tag {
-      background: #0f0f23;
-      padding: 4px 12px;
-      border-radius: 15px;
-      font-size: 12px;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>🚨 Emergency WebSocket Client</h1>
-    
-    <div class="status">
-      <div class="status-dot" id="statusDot"></div>
-      <span id="statusText">Disconnected</span>
-    </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebSocket Client Test</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: #1a1a2e;
+        color: #eee;
+        padding: 20px;
+        min-height: 100vh;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      h1 {
+        color: #00d9ff;
+        margin-bottom: 20px;
+      }
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        background: #16213e;
+        margin-bottom: 20px;
+      }
+      .status-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #ff4757;
+      }
+      .status-dot.connected {
+        background: #2ed573;
+      }
+      .card {
+        background: #16213e;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .card h2 {
+        color: #00d9ff;
+        margin-bottom: 15px;
+        font-size: 1.2rem;
+      }
+      input,
+      button {
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: none;
+        font-size: 14px;
+      }
+      input {
+        background: #0f0f23;
+        color: #fff;
+        width: 100%;
+        margin-bottom: 10px;
+      }
+      button {
+        background: #00d9ff;
+        color: #1a1a2e;
+        cursor: pointer;
+        font-weight: 600;
+        margin-right: 10px;
+        margin-bottom: 10px;
+      }
+      button:hover {
+        background: #00b8d9;
+      }
+      button.disconnect {
+        background: #ff4757;
+        color: #fff;
+      }
+      #events {
+        background: #0f0f23;
+        border-radius: 8px;
+        padding: 15px;
+        max-height: 400px;
+        overflow-y: auto;
+        font-family: monospace;
+        font-size: 13px;
+      }
+      .event {
+        padding: 8px;
+        border-bottom: 1px solid #16213e;
+        word-break: break-all;
+      }
+      .event:last-child {
+        border-bottom: none;
+      }
+      .event-type {
+        color: #00d9ff;
+        font-weight: bold;
+      }
+      .event-time {
+        color: #666;
+        font-size: 11px;
+      }
+      .rooms {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .room-tag {
+        background: #0f0f23;
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🚨 Emergency WebSocket Client</h1>
 
-    <div class="card">
-      <h2>🔐 Connection</h2>
-      <input type="text" id="serverUrl" value="http://localhost:3000" placeholder="Server URL">
-      <input type="text" id="token" placeholder="JWT Token (from login)">
-      <div>
-        <button onclick="connect()">Connect</button>
-        <button class="disconnect" onclick="disconnect()">Disconnect</button>
+      <div class="status">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">Disconnected</span>
+      </div>
+
+      <div class="card">
+        <h2>🔐 Connection</h2>
+        <input
+          type="text"
+          id="serverUrl"
+          value="http://localhost:3000"
+          placeholder="Server URL"
+        />
+        <input type="text" id="token" placeholder="JWT Token (from login)" />
+        <div>
+          <button onclick="connect()">Connect</button>
+          <button class="disconnect" onclick="disconnect()">Disconnect</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>🚪 Rooms</h2>
+        <input
+          type="text"
+          id="roomName"
+          placeholder="Room name (e.g., org:123, room:hospitals)"
+        />
+        <div>
+          <button onclick="joinRoom()">Join Room</button>
+          <button onclick="leaveRoom()">Leave Room</button>
+        </div>
+        <p style="margin-top: 10px; color: #888">Joined rooms:</p>
+        <div class="rooms" id="joinedRooms"></div>
+      </div>
+
+      <div class="card">
+        <h2>📡 Events</h2>
+        <button onclick="clearEvents()">Clear</button>
+        <div id="events"></div>
       </div>
     </div>
 
-    <div class="card">
-      <h2>🚪 Rooms</h2>
-      <input type="text" id="roomName" placeholder="Room name (e.g., org:123, room:hospitals)">
-      <div>
-        <button onclick="joinRoom()">Join Room</button>
-        <button onclick="leaveRoom()">Leave Room</button>
-      </div>
-      <p style="margin-top: 10px; color: #888;">Joined rooms:</p>
-      <div class="rooms" id="joinedRooms"></div>
-    </div>
+    <script>
+      let socket = null;
+      const joinedRooms = new Set();
 
-    <div class="card">
-      <h2>📡 Events</h2>
-      <button onclick="clearEvents()">Clear</button>
-      <div id="events"></div>
-    </div>
-  </div>
+      function connect() {
+        const serverUrl = document.getElementById("serverUrl").value;
+        const token = document.getElementById("token").value;
 
-  <script>
-    let socket = null;
-    const joinedRooms = new Set();
+        if (!token) {
+          addEvent("error", "Please enter a JWT token");
+          return;
+        }
 
-    function connect() {
-      const serverUrl = document.getElementById('serverUrl').value;
-      const token = document.getElementById('token').value;
+        socket = io(serverUrl, {
+          auth: { token },
+          transports: ["websocket", "polling"],
+        });
 
-      if (!token) {
-        addEvent('error', 'Please enter a JWT token');
-        return;
+        socket.on("connect", () => {
+          updateStatus(true);
+          addEvent("connect", `Connected! Socket ID: ${socket.id}`);
+        });
+
+        socket.on("disconnect", (reason) => {
+          updateStatus(false);
+          addEvent("disconnect", `Disconnected: ${reason}`);
+          joinedRooms.clear();
+          updateRoomsDisplay();
+        });
+
+        socket.on("connect_error", (error) => {
+          addEvent("error", `Connection error: ${error.message}`);
+        });
+
+        // Emergency events
+        socket.on("emergency:new", (data) => {
+          addEvent("emergency:new", JSON.stringify(data, null, 2));
+        });
+
+        socket.on("emergency:assigned", (data) => {
+          addEvent("emergency:assigned", JSON.stringify(data, null, 2));
+        });
+
+        socket.on("emergency:status-update", (data) => {
+          addEvent("emergency:status-update", JSON.stringify(data, null, 2));
+        });
+
+        // Hospital events
+        socket.on("hospital:bed-update", (data) => {
+          addEvent("hospital:bed-update", JSON.stringify(data, null, 2));
+        });
+
+        // Notification events
+        socket.on("notification:new", (data) => {
+          addEvent("notification:new", JSON.stringify(data, null, 2));
+        });
       }
 
-      socket = io(serverUrl, {
-        auth: { token },
-        transports: ['websocket', 'polling'],
-      });
-
-      socket.on('connect', () => {
-        updateStatus(true);
-        addEvent('connect', `Connected! Socket ID: ${socket.id}`);
-      });
-
-      socket.on('disconnect', (reason) => {
+      function disconnect() {
+        if (socket) {
+          socket.disconnect();
+          socket = null;
+        }
         updateStatus(false);
-        addEvent('disconnect', `Disconnected: ${reason}`);
         joinedRooms.clear();
         updateRoomsDisplay();
-      });
-
-      socket.on('connect_error', (error) => {
-        addEvent('error', `Connection error: ${error.message}`);
-      });
-
-      // Emergency events
-      socket.on('emergency:new', (data) => {
-        addEvent('emergency:new', JSON.stringify(data, null, 2));
-      });
-
-      socket.on('emergency:assigned', (data) => {
-        addEvent('emergency:assigned', JSON.stringify(data, null, 2));
-      });
-
-      socket.on('emergency:status-update', (data) => {
-        addEvent('emergency:status-update', JSON.stringify(data, null, 2));
-      });
-
-      // Hospital events
-      socket.on('hospital:bed-update', (data) => {
-        addEvent('hospital:bed-update', JSON.stringify(data, null, 2));
-      });
-
-      // Notification events
-      socket.on('notification:new', (data) => {
-        addEvent('notification:new', JSON.stringify(data, null, 2));
-      });
-    }
-
-    function disconnect() {
-      if (socket) {
-        socket.disconnect();
-        socket = null;
       }
-      updateStatus(false);
-      joinedRooms.clear();
-      updateRoomsDisplay();
-    }
 
-    function joinRoom() {
-      const room = document.getElementById('roomName').value;
-      if (!room || !socket) return;
+      function joinRoom() {
+        const room = document.getElementById("roomName").value;
+        if (!room || !socket) return;
 
-      socket.emit('join:room', { room }, (response) => {
-        if (response.success) {
-          joinedRooms.add(room);
+        socket.emit("join:room", { room }, (response) => {
+          if (response.success) {
+            joinedRooms.add(room);
+            updateRoomsDisplay();
+            addEvent("join:room", `Joined room: ${room}`);
+          } else {
+            addEvent("error", `Failed to join room: ${room}`);
+          }
+        });
+      }
+
+      function leaveRoom() {
+        const room = document.getElementById("roomName").value;
+        if (!room || !socket) return;
+
+        socket.emit("leave:room", { room }, (response) => {
+          joinedRooms.delete(room);
           updateRoomsDisplay();
-          addEvent('join:room', `Joined room: ${room}`);
-        } else {
-          addEvent('error', `Failed to join room: ${room}`);
-        }
-      });
-    }
+          addEvent("leave:room", `Left room: ${room}`);
+        });
+      }
 
-    function leaveRoom() {
-      const room = document.getElementById('roomName').value;
-      if (!room || !socket) return;
+      function updateStatus(connected) {
+        const dot = document.getElementById("statusDot");
+        const text = document.getElementById("statusText");
+        dot.className = "status-dot" + (connected ? " connected" : "");
+        text.textContent = connected ? "Connected" : "Disconnected";
+      }
 
-      socket.emit('leave:room', { room }, (response) => {
-        joinedRooms.delete(room);
-        updateRoomsDisplay();
-        addEvent('leave:room', `Left room: ${room}`);
-      });
-    }
+      function updateRoomsDisplay() {
+        const container = document.getElementById("joinedRooms");
+        container.innerHTML = Array.from(joinedRooms)
+          .map((room) => `<span class="room-tag">${room}</span>`)
+          .join("");
+      }
 
-    function updateStatus(connected) {
-      const dot = document.getElementById('statusDot');
-      const text = document.getElementById('statusText');
-      dot.className = 'status-dot' + (connected ? ' connected' : '');
-      text.textContent = connected ? 'Connected' : 'Disconnected';
-    }
-
-    function updateRoomsDisplay() {
-      const container = document.getElementById('joinedRooms');
-      container.innerHTML = Array.from(joinedRooms)
-        .map(room => `<span class="room-tag">${room}</span>`)
-        .join('');
-    }
-
-    function addEvent(type, data) {
-      const events = document.getElementById('events');
-      const time = new Date().toLocaleTimeString();
-      const eventEl = document.createElement('div');
-      eventEl.className = 'event';
-      eventEl.innerHTML = `
+      function addEvent(type, data) {
+        const events = document.getElementById("events");
+        const time = new Date().toLocaleTimeString();
+        const eventEl = document.createElement("div");
+        eventEl.className = "event";
+        eventEl.innerHTML = `
         <span class="event-time">${time}</span>
         <span class="event-type">${type}</span>
         <pre>${data}</pre>
       `;
-      events.insertBefore(eventEl, events.firstChild);
-    }
+        events.insertBefore(eventEl, events.firstChild);
+      }
 
-    function clearEvents() {
-      document.getElementById('events').innerHTML = '';
-    }
-  </script>
-</body>
+      function clearEvents() {
+        document.getElementById("events").innerHTML = "";
+      }
+    </script>
+  </body>
 </html>
-
