@@ -3,21 +3,27 @@ import { Model, Types } from 'mongoose';
 import { getModelToken } from '@nestjs/mongoose';
 import * as bcrypt from 'bcryptjs';
 import { AppModule } from '../app.module';
-import { User } from '../schemas/user.schema';
+import { User, UserDocument } from '../schemas/user.schema';
 import { Organization } from '../schemas/organization.schema';
-import { Role, OrganizationType } from '../common/enums';
+import { EmergencyRequest } from '../schemas/emergency-request.schema';
+import { EmergencyResponse } from '../schemas/emergency-response.schema';
+import { Role, OrganizationType, EmergencyStatus, EmergencySeverity } from '../common/enums';
 
 async function seed() {
   const app = await NestFactory.createApplicationContext(AppModule);
 
   const userModel = app.get<Model<User>>(getModelToken(User.name));
   const organizationModel = app.get<Model<Organization>>(getModelToken(Organization.name));
+  const emergencyRequestModel = app.get<Model<EmergencyRequest>>(getModelToken(EmergencyRequest.name));
+  const emergencyResponseModel = app.get<Model<EmergencyResponse>>(getModelToken(EmergencyResponse.name));
 
   console.log('🌱 Starting database seed...');
 
   // Clear existing data
   await userModel.deleteMany({});
   await organizationModel.deleteMany({});
+  await emergencyRequestModel.deleteMany({});
+  await emergencyResponseModel.deleteMany({});
 
   console.log('📦 Creating organizations...');
 
@@ -167,7 +173,7 @@ async function seed() {
   const hashedPassword = await bcrypt.hash('password123', 10);
 
   // Create admin user
-  await userModel.create({
+  const adminUser = await userModel.create({
     email: 'admin@emergency.com',
     password: hashedPassword,
     firstName: 'System',
@@ -179,7 +185,7 @@ async function seed() {
   });
 
   // Create dispatcher user
-  await userModel.create({
+  const dispatcherUser = await userModel.create({
     email: 'dispatcher@emergency.com',
     password: hashedPassword,
     firstName: 'John',
@@ -207,8 +213,9 @@ async function seed() {
   }
 
   // Create rescue team users
+  const rescueTeamUsers: UserDocument[] = [];
   for (let i = 0; i < rescueTeams.length; i++) {
-    await userModel.create({
+    const rescueUser = await userModel.create({
       email: `rescue${i + 1}@emergency.com`,
       password: hashedPassword,
       firstName: `Rescue${i + 1}`,
@@ -219,10 +226,11 @@ async function seed() {
       isActive: true,
       isEmailVerified: true,
     });
+    rescueTeamUsers.push(rescueUser);
   }
 
   // Create regular user
-  await userModel.create({
+  const citizenUser = await userModel.create({
     email: 'user@emergency.com',
     password: hashedPassword,
     firstName: 'Regular',
@@ -235,6 +243,187 @@ async function seed() {
 
   const userCount = await userModel.countDocuments();
   console.log(`✅ Created ${userCount} users`);
+
+  console.log('🚑 Creating sample emergency cases...');
+  const now = new Date();
+  const emergencySeedData = [
+    {
+      callerName: 'Somchai Prasert',
+      callerPhone: '+66912340001',
+      description: 'Multi-vehicle collision on Rama IV road. Two passengers unconscious.',
+      severity: EmergencySeverity.CRITICAL,
+      status: EmergencyStatus.EN_ROUTE,
+      address: 'Rama IV Rd, Khlong Toei, Bangkok 10110',
+      location: {
+        type: 'Point',
+        coordinates: [100.5499, 13.7225],
+      },
+      assignedHospitalId: hospitals[0]._id as Types.ObjectId,
+      assignedRescueTeamId: rescueTeams[0]._id as Types.ObjectId,
+      dispatcherId: dispatcherUser._id,
+      patientCount: 3,
+      emergencyType: 'Traffic Accident',
+      notes: 'Two critical patients requiring immediate transport.',
+      statusHistory: [
+        {
+          status: EmergencyStatus.PENDING,
+          timestamp: new Date(now.getTime() - 1000 * 60 * 25),
+          notes: 'Emergency reported by passerby',
+        },
+        {
+          status: EmergencyStatus.ASSIGNED,
+          timestamp: new Date(now.getTime() - 1000 * 60 * 20),
+          updatedBy: dispatcherUser._id,
+          notes: 'Assigned to Ruamkatanyu Foundation',
+        },
+        {
+          status: EmergencyStatus.EN_ROUTE,
+          timestamp: new Date(now.getTime() - 1000 * 60 * 10),
+          notes: 'Rescue unit en route',
+        },
+      ],
+      estimatedArrival: new Date(now.getTime() + 1000 * 60 * 8),
+      priorityScore: 100,
+    },
+    {
+      callerName: 'Prapaiporn T.',
+      callerPhone: '+66912340002',
+      description: 'Stroke symptoms reported at office building. Patient conscious but unstable.',
+      severity: EmergencySeverity.HIGH,
+      status: EmergencyStatus.ON_SCENE,
+      address: 'Sathorn Square, Bang Rak, Bangkok',
+      location: {
+        type: 'Point',
+        coordinates: [100.5299, 13.7253],
+      },
+      assignedHospitalId: hospitals[1]._id as Types.ObjectId,
+      assignedRescueTeamId: rescueTeams[1]._id as Types.ObjectId,
+      dispatcherId: dispatcherUser._id,
+      patientCount: 1,
+      emergencyType: 'Medical Emergency',
+      notes: 'Suspected stroke, FAST positive.',
+      statusHistory: [
+        {
+          status: EmergencyStatus.PENDING,
+          timestamp: new Date(now.getTime() - 1000 * 60 * 40),
+          notes: 'Caller is office colleague',
+        },
+        {
+          status: EmergencyStatus.ASSIGNED,
+          timestamp: new Date(now.getTime() - 1000 * 60 * 35),
+          updatedBy: dispatcherUser._id,
+          notes: 'Assigned to Por Tek Tung Foundation',
+        },
+        {
+          status: EmergencyStatus.EN_ROUTE,
+          timestamp: new Date(now.getTime() - 1000 * 60 * 28),
+          notes: 'Unit departed base',
+        },
+        {
+          status: EmergencyStatus.ON_SCENE,
+          timestamp: new Date(now.getTime() - 1000 * 60 * 10),
+          notes: 'Vitals monitored, preparing transport',
+        },
+      ],
+      estimatedArrival: new Date(now.getTime() + 1000 * 60 * 5),
+      priorityScore: 80,
+    },
+    {
+      callerName: 'Krit Charoen',
+      callerPhone: '+66912340003',
+      description: 'Motorbike crash on Rama II frontage road. Severe bleeding reported.',
+      severity: EmergencySeverity.CRITICAL,
+      status: EmergencyStatus.TRANSPORTING,
+      address: 'Rama II Frontage Rd, Chom Thong, Bangkok',
+      location: {
+        type: 'Point',
+        coordinates: [100.4375, 13.6762],
+      },
+      assignedHospitalId: hospitals[2]._id as Types.ObjectId,
+      assignedRescueTeamId: rescueTeams[2]._id as Types.ObjectId,
+      dispatcherId: dispatcherUser._id,
+      patientCount: 1,
+      emergencyType: 'Trauma',
+      notes: 'Patient intubated, en route to trauma center.',
+      statusHistory: [
+        {
+          status: EmergencyStatus.PENDING,
+          timestamp: new Date(now.getTime() - 1000 * 60 * 50),
+        },
+        {
+          status: EmergencyStatus.ASSIGNED,
+          timestamp: new Date(now.getTime() - 1000 * 60 * 45),
+          updatedBy: dispatcherUser._id,
+        },
+        {
+          status: EmergencyStatus.EN_ROUTE,
+          timestamp: new Date(now.getTime() - 1000 * 60 * 35),
+        },
+        {
+          status: EmergencyStatus.ON_SCENE,
+          timestamp: new Date(now.getTime() - 1000 * 60 * 20),
+        },
+        {
+          status: EmergencyStatus.TRANSPORTING,
+          timestamp: new Date(now.getTime() - 1000 * 60 * 5),
+          notes: 'Departed scene heading to Ramathibodi Hospital',
+        },
+      ],
+      estimatedArrival: new Date(now.getTime() + 1000 * 60 * 3),
+      priorityScore: 100,
+    },
+    {
+      callerName: 'Nattaporn S.',
+      callerPhone: '+66912340004',
+      description: 'House fire smoke inhalation victims awaiting evaluation.',
+      severity: EmergencySeverity.MEDIUM,
+      status: EmergencyStatus.ASSIGNED,
+      address: 'Lat Phrao 101 Alley, Wang Thonglang, Bangkok',
+      location: {
+        type: 'Point',
+        coordinates: [100.604, 13.7822],
+      },
+      assignedHospitalId: hospitals[0]._id as Types.ObjectId,
+      assignedRescueTeamId: rescueTeams[1]._id as Types.ObjectId,
+      dispatcherId: dispatcherUser._id,
+      patientCount: 4,
+      emergencyType: 'Fire Incident',
+      notes: 'Awaiting rescue team arrival for triage.',
+      statusHistory: [
+        {
+          status: EmergencyStatus.PENDING,
+          timestamp: new Date(now.getTime() - 1000 * 60 * 15),
+        },
+        {
+          status: EmergencyStatus.ASSIGNED,
+          timestamp: new Date(now.getTime() - 1000 * 60 * 12),
+          updatedBy: dispatcherUser._id,
+        },
+      ],
+      estimatedArrival: new Date(now.getTime() + 1000 * 60 * 6),
+      priorityScore: 60,
+    },
+  ];
+
+  const emergencyRequests = await emergencyRequestModel.insertMany(emergencySeedData);
+  console.log(`✅ Seeded ${emergencyRequests.length} emergency cases`);
+
+  await emergencyResponseModel.insertMany(
+    emergencyRequests
+      .filter((request) => request.assignedRescueTeamId)
+      .map((request) => ({
+        emergencyRequestId: request._id,
+        organizationId: request.assignedRescueTeamId as Types.ObjectId,
+        responderId: rescueTeamUsers.find((user) =>
+          user.organizationId?.equals(request.assignedRescueTeamId as Types.ObjectId),
+        )?._id,
+        responseType: 'rescue',
+        dispatchTime: request.statusHistory?.[0]?.timestamp || new Date(),
+        arrivalTime: request.statusHistory?.find((s) => s.status === EmergencyStatus.ON_SCENE)?.timestamp,
+        notes: request.notes,
+      })),
+  );
+  console.log('✅ Created emergency response records');
 
   console.log('\n🎉 Database seeding completed!');
   console.log('\n📋 Test accounts (password: password123):');

@@ -114,8 +114,9 @@ export class SosController {
   async getAssignedCases(
     @CurrentUser() user: JwtPayload,
   ): Promise<EmergencyResponseDto[]> {
-    const organizationId = user.organizationId || '';
-    return this.sosService.getAssignedCases(organizationId);
+    const organizationId = user.organizationId;
+    const includeAllForAdmin = user.role === Role.ADMIN && !organizationId;
+    return this.sosService.getAssignedCases(organizationId, includeAllForAdmin);
   }
 
   @Get(':id')

@@ -43,8 +43,9 @@ let SosController = class SosController {
         return this.sosService.getActiveEmergencies(organizationId);
     }
     async getAssignedCases(user) {
-        const organizationId = user.organizationId || '';
-        return this.sosService.getAssignedCases(organizationId);
+        const organizationId = user.organizationId;
+        const includeAllForAdmin = user.role === enums_1.Role.ADMIN && !organizationId;
+        return this.sosService.getAssignedCases(organizationId, includeAllForAdmin);
     }
     async getEmergencyById(id) {
         return this.sosService.getEmergencyById(id);

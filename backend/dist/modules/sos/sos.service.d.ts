@@ -13,7 +13,7 @@ export declare class SosService {
     updateStatus(id: string, updateDto: UpdateStatusDto, userId?: string): Promise<EmergencyResponseDto>;
     getAllEmergencies(query: QueryEmergencyDto): Promise<EmergencyListResponseDto>;
     getActiveEmergencies(hospitalId: string): Promise<EmergencyResponseDto[]>;
-    getAssignedCases(rescueTeamId: string): Promise<EmergencyResponseDto[]>;
+    getAssignedCases(rescueTeamId?: string, includeAllForAdmin?: boolean): Promise<EmergencyResponseDto[]>;
     getEmergencyById(id: string): Promise<EmergencyResponseDto>;
     private emitNewEmergency;
     private emitEmergencyAssigned;

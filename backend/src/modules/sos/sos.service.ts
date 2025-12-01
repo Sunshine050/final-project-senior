@@ -220,7 +220,7 @@ export class SosService {
     return emergencies.map((e) => this.mapToResponseDto(e));
   }
 
-  async getAssignedCases(rescueTeamId: string): Promise<EmergencyResponseDto[]> {
+  async getAssignedCases(rescueTeamId?: string, includeAllForAdmin = false): Promise<EmergencyResponseDto[]> {
     const activeStatuses = [
       EmergencyStatus.ASSIGNED,
       EmergencyStatus.EN_ROUTE,
@@ -228,11 +228,22 @@ export class SosService {
       EmergencyStatus.TRANSPORTING,
     ];
 
+    const filter: FilterQuery<EmergencyRequestDocument> = {
+      status: { $in: activeStatuses },
+    };
+
+    if (rescueTeamId) {
+      if (!Types.ObjectId.isValid(rescueTeamId)) {
+        throw new BadRequestException('Invalid rescue team ID');
+      }
+
+      filter.assignedRescueTeamId = new Types.ObjectId(rescueTeamId);
+    } else if (!includeAllForAdmin) {
+      throw new BadRequestException('Rescue team ID is required');
+    }
+
     const emergencies = await this.emergencyRequestModel
-      .find({
-        assignedRescueTeamId: new Types.ObjectId(rescueTeamId),
-        status: { $in: activeStatuses },
-      })
+      .find(filter)
       .sort({ priorityScore: -1, createdAt: -1 })
       .exec();
 

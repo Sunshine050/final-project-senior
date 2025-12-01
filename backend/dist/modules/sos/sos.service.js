@@ -163,18 +163,27 @@ let SosService = class SosService {
             .exec();
         return emergencies.map((e) => this.mapToResponseDto(e));
     }
-    async getAssignedCases(rescueTeamId) {
+    async getAssignedCases(rescueTeamId, includeAllForAdmin = false) {
         const activeStatuses = [
             enums_1.EmergencyStatus.ASSIGNED,
             enums_1.EmergencyStatus.EN_ROUTE,
             enums_1.EmergencyStatus.ON_SCENE,
             enums_1.EmergencyStatus.TRANSPORTING,
         ];
-        const emergencies = await this.emergencyRequestModel
-            .find({
-            assignedRescueTeamId: new mongoose_2.Types.ObjectId(rescueTeamId),
+        const filter = {
             status: { $in: activeStatuses },
-        })
+        };
+        if (rescueTeamId) {
+            if (!mongoose_2.Types.ObjectId.isValid(rescueTeamId)) {
+                throw new common_1.BadRequestException('Invalid rescue team ID');
+            }
+            filter.assignedRescueTeamId = new mongoose_2.Types.ObjectId(rescueTeamId);
+        }
+        else if (!includeAllForAdmin) {
+            throw new common_1.BadRequestException('Rescue team ID is required');
+        }
+        const emergencies = await this.emergencyRequestModel
+            .find(filter)
             .sort({ priorityScore: -1, createdAt: -1 })
             .exec();
         return emergencies.map((e) => this.mapToResponseDto(e));
