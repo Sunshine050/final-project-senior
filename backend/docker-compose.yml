@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7
+    container_name: emergency-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=emergency-care
+    networks:
+      - emergency-network
+
+  # NestJS Backend API
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: emergency-api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - MONGODB_URI=mongodb://mongodb:27017/emergency-care
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - JWT_EXPIRES_IN=7d
+    depends_on:
+      - mongodb
+    networks:
+      - emergency-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  emergency-network:
+    driver: bridge
+

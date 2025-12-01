@@ -1,0 +1,20 @@
+version: '3.8'
+
+# Development Docker Compose - Only MongoDB
+# Use this when you want to run MongoDB in Docker but NestJS locally
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: emergency-mongodb-dev
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_dev_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=emergency-care
+
+volumes:
+  mongodb_dev_data:
+
