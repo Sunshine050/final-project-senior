@@ -39,6 +39,10 @@ export class User {
   @Prop()
   googleId?: string;
 
+  @ApiProperty({ description: 'Facebook OAuth ID' })
+  @Prop()
+  facebookId?: string;
+
   @ApiProperty({ description: 'Profile picture URL' })
   @Prop()
   avatar?: string;
@@ -67,4 +71,5 @@ UserSchema.index({ email: 1 });
 UserSchema.index({ organizationId: 1 });
 UserSchema.index({ role: 1 });
 UserSchema.index({ googleId: 1 });
+UserSchema.index({ facebookId: 1 });
 

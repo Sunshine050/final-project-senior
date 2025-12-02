@@ -9,9 +9,29 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
 import { User, UserDocument } from '../../schemas/user.schema';
-import { RegisterDto, LoginDto, GoogleAuthDto, AuthResponseDto, UserResponseDto, ProfileResponseDto } from './dto';
+import {
+  RegisterDto,
+  LoginDto,
+  GoogleAuthDto,
+  FacebookAuthDto,
+  AuthResponseDto,
+  UserResponseDto,
+  ProfileResponseDto,
+} from './dto';
 import { Role } from '../../common/enums';
 import { JwtPayload } from '../../common/decorators/current-user.decorator';
+import fetch from 'node-fetch';
+
+interface FacebookGraphResponse {
+  id: string;
+  name?: string;
+  email?: string;
+  picture?: {
+    data?: {
+      url?: string;
+    };
+  };
+}
 
 @Injectable()
 export class AuthService {
@@ -143,6 +163,47 @@ export class AuthService {
     };
   }
 
+  async facebookAuth(facebookAuthDto: FacebookAuthDto): Promise<AuthResponseDto> {
+    const { token, organizationId } = facebookAuthDto;
+
+    const profile = await this.fetchFacebookProfile(token);
+    const [firstName, ...rest] = profile.name.split(' ');
+    const lastName = rest.join(' ') || firstName;
+
+    let user = await this.userModel
+      .findOne({
+        $or: [{ facebookId: profile.facebookId }, { email: profile.email }],
+      })
+      .exec();
+
+    if (user) {
+      if (!user.facebookId) {
+        user.facebookId = profile.facebookId;
+      }
+      user.lastLogin = new Date();
+      await user.save();
+    } else {
+      user = new this.userModel({
+        email: profile.email,
+        firstName,
+        lastName,
+        avatar: profile.avatar,
+        facebookId: profile.facebookId,
+        isEmailVerified: profile.emailVerified,
+        role: Role.USER,
+        organizationId: organizationId ? new Types.ObjectId(organizationId) : undefined,
+      });
+      await user.save();
+    }
+
+    const jwtToken = this.generateToken(user);
+
+    return {
+      accessToken: jwtToken,
+      user: this.mapToUserResponse(user),
+    };
+  }
+
   async getProfile(userId: string): Promise<ProfileResponseDto> {
     const user = await this.userModel.findById(userId).exec();
     if (!user) {
@@ -214,6 +275,31 @@ export class AuthService {
       throw new Error('Invalid token format');
     } catch {
       throw new BadRequestException('Invalid Google token format');
+    }
+  }
+
+  private async fetchFacebookProfile(
+    token: string,
+  ): Promise<{ facebookId: string; email: string; name: string; avatar?: string; emailVerified: boolean }> {
+    try {
+      const response = await fetch(
+        `https://graph.facebook.com/me?fields=id,name,email,picture.width(400).height(400)&access_token=${token}`,
+      );
+
+      if (!response.ok) {
+        throw new BadRequestException('Invalid Facebook token');
+      }
+
+      const data = (await response.json()) as FacebookGraphResponse;
+      return {
+        facebookId: data.id,
+        email: data.email || `${data.id}@facebook.local`,
+        name: data.name || 'Facebook User',
+        avatar: data.picture?.data?.url,
+        emailVerified: Boolean(data.email),
+      };
+    } catch {
+      throw new BadRequestException('Invalid Facebook token');
     }
   }
 }

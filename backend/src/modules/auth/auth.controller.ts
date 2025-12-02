@@ -1,7 +1,14 @@
 import { Controller, Post, Get, Body, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { RegisterDto, LoginDto, GoogleAuthDto, AuthResponseDto, ProfileResponseDto } from './dto';
+import {
+  RegisterDto,
+  LoginDto,
+  GoogleAuthDto,
+  FacebookAuthDto,
+  AuthResponseDto,
+  ProfileResponseDto,
+} from './dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser, JwtPayload } from '../../common/decorators/current-user.decorator';
 
@@ -34,6 +41,15 @@ export class AuthController {
   @ApiResponse({ status: 400, description: 'Invalid Google token' })
   async googleAuth(@Body() googleAuthDto: GoogleAuthDto): Promise<AuthResponseDto> {
     return this.authService.googleAuth(googleAuthDto);
+  }
+
+  @Post('oauth/facebook')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Authenticate with Facebook OAuth' })
+  @ApiResponse({ status: 200, description: 'Facebook authentication successful', type: AuthResponseDto })
+  @ApiResponse({ status: 400, description: 'Invalid Facebook token' })
+  async facebookAuth(@Body() facebookAuthDto: FacebookAuthDto): Promise<AuthResponseDto> {
+    return this.authService.facebookAuth(facebookAuthDto);
   }
 
   @Get('profile')

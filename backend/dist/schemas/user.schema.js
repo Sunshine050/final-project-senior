@@ -58,6 +58,11 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "googleId", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ description: 'Facebook OAuth ID' }),
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], User.prototype, "facebookId", void 0);
+__decorate([
     (0, swagger_1.ApiProperty)({ description: 'Profile picture URL' }),
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
@@ -90,4 +95,5 @@ exports.UserSchema.index({ email: 1 });
 exports.UserSchema.index({ organizationId: 1 });
 exports.UserSchema.index({ role: 1 });
 exports.UserSchema.index({ googleId: 1 });
+exports.UserSchema.index({ facebookId: 1 });
 //# sourceMappingURL=user.schema.js.map

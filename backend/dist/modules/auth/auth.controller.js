@@ -32,6 +32,9 @@ let AuthController = class AuthController {
     async googleAuth(googleAuthDto) {
         return this.authService.googleAuth(googleAuthDto);
     }
+    async facebookAuth(facebookAuthDto) {
+        return this.authService.facebookAuth(facebookAuthDto);
+    }
     async getProfile(user) {
         return this.authService.getProfile(user.sub);
     }
@@ -69,6 +72,17 @@ __decorate([
     __metadata("design:paramtypes", [dto_1.GoogleAuthDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "googleAuth", null);
+__decorate([
+    (0, common_1.Post)('oauth/facebook'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({ summary: 'Authenticate with Facebook OAuth' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Facebook authentication successful', type: dto_1.AuthResponseDto }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Invalid Facebook token' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [dto_1.FacebookAuthDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "facebookAuth", null);
 __decorate([
     (0, common_1.Get)('profile'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

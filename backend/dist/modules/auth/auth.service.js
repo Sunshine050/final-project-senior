@@ -44,6 +44,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
@@ -53,6 +56,7 @@ const mongoose_2 = require("mongoose");
 const bcrypt = __importStar(require("bcryptjs"));
 const user_schema_1 = require("../../schemas/user.schema");
 const enums_1 = require("../../common/enums");
+const node_fetch_1 = __importDefault(require("node-fetch"));
 let AuthService = class AuthService {
     constructor(userModel, jwtService) {
         this.userModel = userModel;
@@ -144,6 +148,42 @@ let AuthService = class AuthService {
             user: this.mapToUserResponse(user),
         };
     }
+    async facebookAuth(facebookAuthDto) {
+        const { token, organizationId } = facebookAuthDto;
+        const profile = await this.fetchFacebookProfile(token);
+        const [firstName, ...rest] = profile.name.split(' ');
+        const lastName = rest.join(' ') || firstName;
+        let user = await this.userModel
+            .findOne({
+            $or: [{ facebookId: profile.facebookId }, { email: profile.email }],
+        })
+            .exec();
+        if (user) {
+            if (!user.facebookId) {
+                user.facebookId = profile.facebookId;
+            }
+            user.lastLogin = new Date();
+            await user.save();
+        }
+        else {
+            user = new this.userModel({
+                email: profile.email,
+                firstName,
+                lastName,
+                avatar: profile.avatar,
+                facebookId: profile.facebookId,
+                isEmailVerified: profile.emailVerified,
+                role: enums_1.Role.USER,
+                organizationId: organizationId ? new mongoose_2.Types.ObjectId(organizationId) : undefined,
+            });
+            await user.save();
+        }
+        const jwtToken = this.generateToken(user);
+        return {
+            accessToken: jwtToken,
+            user: this.mapToUserResponse(user),
+        };
+    }
     async getProfile(userId) {
         const user = await this.userModel.findById(userId).exec();
         if (!user) {
@@ -204,6 +244,25 @@ let AuthService = class AuthService {
         }
         catch {
             throw new common_1.BadRequestException('Invalid Google token format');
+        }
+    }
+    async fetchFacebookProfile(token) {
+        try {
+            const response = await (0, node_fetch_1.default)(`https://graph.facebook.com/me?fields=id,name,email,picture.width(400).height(400)&access_token=${token}`);
+            if (!response.ok) {
+                throw new common_1.BadRequestException('Invalid Facebook token');
+            }
+            const data = (await response.json());
+            return {
+                facebookId: data.id,
+                email: data.email || `${data.id}@facebook.local`,
+                name: data.name || 'Facebook User',
+                avatar: data.picture?.data?.url,
+                emailVerified: Boolean(data.email),
+            };
+        }
+        catch {
+            throw new common_1.BadRequestException('Invalid Facebook token');
         }
     }
 };

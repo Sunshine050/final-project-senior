@@ -17,5 +17,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./register.dto"), exports);
 __exportStar(require("./login.dto"), exports);
 __exportStar(require("./google-auth.dto"), exports);
+__exportStar(require("./facebook-auth.dto"), exports);
 __exportStar(require("./auth-response.dto"), exports);
 //# sourceMappingURL=index.js.map

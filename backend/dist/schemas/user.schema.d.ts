@@ -10,6 +10,7 @@ export declare class User {
     role: Role;
     organizationId?: Types.ObjectId;
     googleId?: string;
+    facebookId?: string;
     avatar?: string;
     isActive: boolean;
     isEmailVerified: boolean;
