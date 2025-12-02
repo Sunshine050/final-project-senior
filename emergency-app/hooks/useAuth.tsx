@@ -35,7 +35,7 @@ interface AuthContextValue {
   refreshProfile: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 const TOKEN_KEY = '@emergency/token';
 const USER_KEY = '@emergency/user';

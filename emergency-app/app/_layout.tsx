@@ -1,51 +1,17 @@
-import { useEffect, useMemo } from "react";
-import {
-  ActivityIndicator,
-  ColorSchemeName,
-  useColorScheme,
-  View,
-} from "react-native";
-import { Stack, useRouter, useSegments } from "expo-router";
-import {
-  DarkTheme,
-  DefaultTheme,
-  Theme,
-  ThemeProvider,
-} from "@react-navigation/native";
-import { StatusBar } from "expo-status-bar";
+import { LoadingProvider } from "@/src/context/LoadingContext";
+import "@/src/i18n";
+import { AuthContext, AuthProvider } from "../hooks/useAuth";
+import { ThemeProvider } from "@/src/context/ThemeContext";
+import { SettingsProvider } from "@/src/context/SettingsContext";
+import { Stack } from "expo-router";
+import { useContext, useEffect } from "react";
+import { useRouter, useSegments } from "expo-router";
 
-import { AuthProvider, useAuth } from "../hooks/useAuth";
-
-const lightTheme: Theme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    primary: "#dc2626",
-    background: "#f8fafc",
-    card: "#ffffff",
-    text: "#0f172a",
-    border: "#e2e8f0",
-    notification: "#ef4444",
-  },
-};
-
-const darkTheme: Theme = {
-  ...DarkTheme,
-  colors: {
-    ...DarkTheme.colors,
-    primary: "#f97066",
-    background: "#050b18",
-    card: "#0f172a",
-    text: "#f8fafc",
-    border: "#1e293b",
-    notification: "#f97316",
-  },
-};
-
-function Navigator({ colorScheme }: { colorScheme: ColorSchemeName }) {
-  const { status } = useAuth();
-  const router = useRouter();
+function InitialLayout() {
+  const authContext = useContext(AuthContext);
+  const status = authContext?.status || "checking";
   const segments = useSegments();
+  const router = useRouter();
 
   useEffect(() => {
     if (status === "checking") {
@@ -56,48 +22,42 @@ function Navigator({ colorScheme }: { colorScheme: ColorSchemeName }) {
 
     if (status === "unauthenticated" && !inAuthGroup) {
       router.replace("/(auth)/login");
+    } else if (status === "authenticated" && inAuthGroup) {
+      router.replace("/(main)/home");
     }
-
-    if (status === "authenticated" && inAuthGroup) {
-      router.replace("/(tabs)");
-    }
-  }, [segments, status, router]);
-
-  if (status === "checking") {
-    return (
-      <View
-        style={{
-          flex: 1,
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: colorScheme === "dark" ? "#050b18" : "#f8fafc",
-        }}
-      >
-        <ActivityIndicator size="large" color="#ef4444" />
-      </View>
-    );
-  }
+  }, [status, segments, router, authContext]);
 
   return (
-    <>
-      <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-      <Stack screenOptions={{ headerShown: false, animation: "fade" }} />
-    </>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(main)" />
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen
+        name="EmergencyDetail"
+        options={{
+          presentation: "modal",
+          animation: "slide_from_bottom",
+        }}
+      />
+      <Stack.Screen name="account" />
+      <Stack.Screen name="settings" />
+      <Stack.Screen name="policy" />
+      <Stack.Screen name="help" />
+      <Stack.Screen name="language-selector" />
+      <Stack.Screen name="user-guide" />
+    </Stack>
   );
 }
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const theme = useMemo(
-    () => (colorScheme === "dark" ? darkTheme : lightTheme),
-    [colorScheme]
-  );
-
   return (
-    <AuthProvider>
-      <ThemeProvider value={theme}>
-        <Navigator colorScheme={colorScheme} />
+    <SettingsProvider>
+      <ThemeProvider>
+        <LoadingProvider>
+          <AuthProvider>
+            <InitialLayout />
+          </AuthProvider>
+        </LoadingProvider>
       </ThemeProvider>
-    </AuthProvider>
+    </SettingsProvider>
   );
 }
