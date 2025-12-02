@@ -9,11 +9,13 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useSettings } from "@/src/context/SettingsContext";
+import { useSettings } from "../src/context/SettingsContext";
+import { useTranslation } from "react-i18next";
 
 export default function LanguageSelectorScreen() {
   const router = useRouter();
   const { language, setLanguage, triggerHaptic } = useSettings();
+  const { t } = useTranslation();
 
   const languages = [
     { code: "th" as const, name: "ไทย", flag: "🇹🇭" },
@@ -32,7 +34,7 @@ export default function LanguageSelectorScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <MaterialIcons name="arrow-back" size={24} color="#111827" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>เลือกภาษา</Text>
+        <Text style={styles.headerTitle}>{t('settings.selectLanguage')}</Text>
         <View style={{ width: 40 }} />
       </View>
 

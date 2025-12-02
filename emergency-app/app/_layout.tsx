@@ -1,11 +1,11 @@
-import { LoadingProvider } from "@/src/context/LoadingContext";
-import "@/src/i18n";
+import { LoadingProvider } from "../src/context/LoadingContext";
 import { AuthContext, AuthProvider } from "../hooks/useAuth";
-import { ThemeProvider } from "@/src/context/ThemeContext";
-import { SettingsProvider } from "@/src/context/SettingsContext";
+import { ThemeProvider } from "../src/context/ThemeContext";
+import { SettingsProvider } from "../src/context/SettingsContext";
 import { Stack } from "expo-router";
 import { useContext, useEffect } from "react";
 import { useRouter, useSegments } from "expo-router";
+import "../src/i18n";
 
 function InitialLayout() {
   const authContext = useContext(AuthContext);
@@ -29,8 +29,8 @@ function InitialLayout() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(main)" />
-      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="(main)" options={{ headerShown: false }} />
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
       <Stack.Screen
         name="EmergencyDetail"
         options={{

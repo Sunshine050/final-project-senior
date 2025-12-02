@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
+import { changeLanguage } from '../i18n';
 
 interface SettingsContextValue {
   language: 'th' | 'en';
@@ -57,8 +58,9 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
   };
 
-  const setLanguage = (lang: 'th' | 'en') => {
+  const setLanguage = async (lang: 'th' | 'en') => {
     setLanguageState(lang);
+    await changeLanguage(lang);
     saveSettings({ language: lang });
   };
 

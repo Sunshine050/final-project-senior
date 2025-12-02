@@ -13,9 +13,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { getUserMeApi, updateUserProfile } from "@/src/api/user/user";
+import { getUserMeApi, updateUserProfile } from "../src/api/user/user";
 import { Audio } from "expo-av";
-import { useSettings } from "@/src/context/SettingsContext";
+import { useSettings } from "../src/context/SettingsContext";
 
 export default function AccountScreen() {
   const router = useRouter();

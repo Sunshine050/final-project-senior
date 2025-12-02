@@ -1,4 +1,3 @@
-// app/(main)/nearby.tsx - Soft Pastel Theme
 import React, { useState, useEffect, useCallback } from "react";
 import {
   ScrollView,
@@ -13,11 +12,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as Location from "expo-location";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useTheme, useThemedStyles } from "@/src/hooks/useTheme";
+import { useTheme, useThemedStyles } from "../../src/hooks/useTheme";
 import { useNavigation } from "@react-navigation/native";
-import { findNearbyHospitalsLongdo } from "@/src/api/longdoMap";
-import { NearbyHospital } from "@/src/types/hospital";
-import { LinearGradient } from "expo-linear-gradient";
+import { findNearbyHospitalsLongdo } from "../../src/api/longdoMap";
+import { NearbyHospital } from "../../src/types/hospital";
 
 export default function NearbyScreen() {
   const { theme } = useTheme();
@@ -41,11 +39,7 @@ export default function NearbyScreen() {
       }
 
       const loc = await Location.getCurrentPositionAsync({});
-      const data = await findNearbyHospitalsLongdo(
-        loc.coords.latitude,
-        loc.coords.longitude,
-        10
-      );
+      const data = await findNearbyHospitalsLongdo(loc.coords.latitude, loc.coords.longitude, 10);
       setHospitals(data);
       setFiltered(data);
     } catch (e) {
@@ -74,191 +68,64 @@ export default function NearbyScreen() {
 
   const styles = useThemedStyles((theme) =>
     StyleSheet.create({
-      container: {
-        flex: 1,
-        backgroundColor: "#FAFAFA",
-      },
-      headerGradient: {
+      container: { flex: 1, backgroundColor: theme.colors.background },
+      header: {
+        paddingTop: 50,
         paddingHorizontal: 20,
-        paddingTop: 12,
-        paddingBottom: 16,
+        paddingBottom: 30,
+        backgroundColor: "#e91e63",
+        borderBottomLeftRadius: 40,
+        borderBottomRightRadius: 40,
+        elevation: 15,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.3,
+        shadowRadius: 20,
       },
-      headerRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        marginBottom: 14,
-      },
-      headerLeft: {
-        flex: 1,
-      },
-      title: {
-        fontSize: 22,
-        fontWeight: "800",
-        color: "#fff",
-        marginBottom: 4,
-      },
-      subtitle: {
-        fontSize: 13,
-        color: "rgba(255, 255, 255, 0.85)",
-        fontWeight: "500",
-      },
-      headerRight: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 10,
-      },
-      statBadge: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: "rgba(255, 255, 255, 0.2)",
-        borderRadius: 20,
-        paddingHorizontal: 10,
-        paddingVertical: 6,
-        gap: 6,
-      },
-      statText: {
-        fontSize: 14,
-        fontWeight: "700",
-        color: "#fff",
-      },
+      title: { fontSize: 28, fontWeight: "bold", color: "#fff", textAlign: "center" },
+      subtitle: { fontSize: 16, color: "#fff", opacity: 0.9, textAlign: "center", marginTop: 8 },
       searchBox: {
         flexDirection: "row",
         alignItems: "center",
         backgroundColor: "#fff",
-        borderRadius: 14,
-        paddingHorizontal: 14,
-        elevation: 4,
+        marginTop: 20,
+        borderRadius: 16,
+        paddingHorizontal: 16,
+        elevation: 12,
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.15,
+        shadowRadius: 12,
       },
-      searchInput: {
-        flex: 1,
-        padding: 12,
-        fontSize: 15,
-        color: theme.colors.text,
-      },
-      content: {
-        flex: 1,
-        paddingHorizontal: 20,
-        paddingTop: 20,
-      },
-      sectionHeader: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-        marginBottom: 14,
-      },
-      sectionTitle: {
-        fontSize: 18,
-        fontWeight: "700",
-        color: theme.colors.text,
-      },
-      sectionCount: {
-        fontSize: 13,
-        fontWeight: "600",
-        color: theme.colors.textSecondary,
-        backgroundColor: "#FFB6C120",
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 12,
-      },
+      searchInput: { flex: 1, padding: 14, fontSize: 16, color: theme.colors.text },
+      content: { flex: 1, padding: 20 },
       card: {
-        backgroundColor: "#FFFFFF",
-        borderRadius: 18,
-        padding: 18,
-        marginBottom: 12,
-        elevation: 3,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 6,
-        borderLeftWidth: 4,
-        borderLeftColor: "#FF6B9D",
-      },
-      cardHeader: {
-        flexDirection: "row",
-        alignItems: "flex-start",
-        marginBottom: 10,
-        gap: 12,
-      },
-      iconBadge: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: "#FFF0F5",
-        justifyContent: "center",
-        alignItems: "center",
-      },
-      cardContent: {
-        flex: 1,
-      },
-      hospitalName: {
-        fontSize: 16,
-        fontWeight: "700",
-        color: theme.colors.text,
-        marginBottom: 6,
-        lineHeight: 20,
-      },
-      cardMeta: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 14,
-      },
-      metaItem: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 4,
-      },
-      distanceText: {
-        fontSize: 13,
-        color: theme.colors.textSecondary,
-        fontWeight: "600",
-      },
-      address: {
-        fontSize: 14,
-        color: theme.colors.textSecondary,
-        lineHeight: 19,
-        marginTop: 6,
-      },
-      phoneRow: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 6,
-        marginTop: 6,
-      },
-      phoneText: {
-        fontSize: 13,
-        color: "#FF6B9D",
-        fontWeight: "600",
-      },
-      emptyState: {
-        alignItems: "center",
-        justifyContent: "center",
-        paddingVertical: 60,
-      },
-      emptyIcon: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        backgroundColor: "#FFF0F5",
-        justifyContent: "center",
-        alignItems: "center",
+        backgroundColor: theme.colors.surface,
+        borderRadius: 20,
+        padding: 20,
         marginBottom: 16,
+        elevation: 10,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.22,
+        shadowRadius: 16,
+        borderWidth: 1,
+        borderColor: theme.colors.border + "30",
       },
-      emptyText: {
-        fontSize: 17,
-        fontWeight: "600",
-        color: theme.colors.text,
-        marginBottom: 6,
+      cardHeader: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
+      hospitalName: { fontSize: 18, fontWeight: "bold", color: theme.colors.text, flex: 1 },
+      distanceBadge: {
+        backgroundColor: "#e91e6320",
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        borderRadius: 30,
+        borderWidth: 1.5,
+        borderColor: "#e91e63",
       },
-      emptySubtext: {
-        fontSize: 14,
-        color: theme.colors.textSecondary,
-        textAlign: "center",
-      },
+      distanceText: { color: "#c2185b", fontWeight: "bold", fontSize: 13 },
+      address: { fontSize: 14, color: theme.colors.textSecondary, lineHeight: 20 },
+      phoneRow: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 8 },
+      phoneText: { fontSize: 15, color: "#e91e63", fontWeight: "600" },
     })
   );
 
@@ -267,35 +134,9 @@ export default function NearbyScreen() {
 
   if (loading && !refreshing) {
     return (
-      <SafeAreaView
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: "#FAFAFA",
-        }}
-      >
-        <View
-          style={{
-            width: 80,
-            height: 80,
-            borderRadius: 40,
-            backgroundColor: "#FFF0F5",
-            justifyContent: "center",
-            alignItems: "center",
-            marginBottom: 20,
-          }}
-        >
-          <MaterialIcons name="favorite" size={40} color="#FF6B9D" />
-        </View>
-        <ActivityIndicator size="large" color="#FF6B9D" />
-        <Text
-          style={{
-            marginTop: 16,
-            fontSize: 16,
-            color: theme.colors.textSecondary,
-          }}
-        >
+      <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: theme.colors.background }}>
+        <ActivityIndicator size="large" color="#e91e63" />
+        <Text style={{ marginTop: 16, fontSize: 16, color: theme.colors.textSecondary }}>
           กำลังค้นหาโรงพยาบาลใกล้คุณ...
         </Text>
       </SafeAreaView>
@@ -303,27 +144,12 @@ export default function NearbyScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
-      <LinearGradient
-        colors={["#FFB6C1", "#FF69B4"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.headerGradient}
-      >
-        <View style={styles.headerRow}>
-          <View style={styles.headerLeft}>
-            <Text style={styles.title}>💊 โรงพยาบาลใกล้ฉัน</Text>
-            <Text style={styles.subtitle}>รัศมี 10 กม. • อัปเดตเรียลไทม์</Text>
-          </View>
-          <View style={styles.headerRight}>
-            <View style={styles.statBadge}>
-              <MaterialIcons name="location-on" size={16} color="#fff" />
-              <Text style={styles.statText}>{hospitals.length}</Text>
-            </View>
-          </View>
-        </View>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>โรงพยาบาลใกล้ฉัน</Text>
+        <Text style={styles.subtitle}>รัศมี 10 กม. • อัปเดตเรียลไทม์</Text>
         <View style={styles.searchBox}>
-          <MaterialIcons name="search" size={20} color="#999" />
+          <MaterialIcons name="search" size={24} color="#999" />
           <TextInput
             style={styles.searchInput}
             placeholder="ค้นหาชื่อโรงพยาบาล..."
@@ -333,41 +159,20 @@ export default function NearbyScreen() {
           />
           {search ? (
             <TouchableOpacity onPress={() => setSearch("")}>
-              <MaterialIcons name="close" size={18} color="#999" />
+              <MaterialIcons name="clear" size={24} color="#999" />
             </TouchableOpacity>
           ) : null}
         </View>
-      </LinearGradient>
-
+      </View>
       <ScrollView
         style={styles.content}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => {
-              setRefreshing(true);
-              loadHospitals();
-            }}
-            colors={["#FF6B9D"]}
-          />
-        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); loadHospitals(); }} />}
       >
-        {filtered.length > 0 && (
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>โรงพยาบาลทั้งหมด</Text>
-            <Text style={styles.sectionCount}>{filtered.length}</Text>
-          </View>
-        )}
-
         {filtered.length === 0 ? (
-          <View style={styles.emptyState}>
-            <View style={styles.emptyIcon}>
-              <MaterialIcons name="favorite" size={40} color="#FF6B9D" />
-            </View>
-            <Text style={styles.emptyText}>ไม่พบข้อมูล</Text>
-            <Text style={styles.emptySubtext}>
-              {search ? "ลองค้นหาด้วยคำอื่น" : "ไม่พบโรงพยาบาลในรัศมี 10 กม."}
+          <View style={{ padding: 60, alignItems: "center" }}>
+            <MaterialIcons name="local-hospital" size={80} color="#ddd" />
+            <Text style={{ marginTop: 16, fontSize: 17, color: theme.colors.textSecondary, textAlign: "center" }}>
+              {search ? "ไม่พบโรงพยาบาลที่ค้นหา" : "ไม่พบโรงพยาบาลในรัศมี 10 กม."}
             </Text>
           </View>
         ) : (
@@ -386,40 +191,25 @@ export default function NearbyScreen() {
                   longitude: hospital.longitude,
                 })
               }
-              activeOpacity={0.7}
             >
               <View style={styles.cardHeader}>
-                <View style={styles.iconBadge}>
-                  <MaterialIcons name="favorite" size={22} color="#FF6B9D" />
-                </View>
-                <View style={styles.cardContent}>
-                  <Text style={styles.hospitalName}>{hospital.name}</Text>
-                  <View style={styles.cardMeta}>
-                    {hospital.distance !== undefined && (
-                      <View style={styles.metaItem}>
-                        <MaterialIcons
-                          name="location-on"
-                          size={15}
-                          color="#FF6B9D"
-                        />
-                        <Text style={styles.distanceText}>
-                          {formatDistance(hospital.distance)}
-                        </Text>
-                      </View>
-                    )}
-                    {hospital.contactPhone && (
-                      <View style={styles.metaItem}>
-                        <MaterialIcons name="phone" size={15} color="#FF6B9D" />
-                        <Text style={styles.distanceText}>โทรได้</Text>
-                      </View>
-                    )}
+                <Text style={styles.hospitalName}>{hospital.name}</Text>
+                {hospital.distance !== undefined && (
+                  <View style={styles.distanceBadge}>
+                    <Text style={styles.distanceText}>{formatDistance(hospital.distance)}</Text>
                   </View>
-                </View>
+                )}
               </View>
               {(hospital.address || hospital.city) && (
-                <Text style={styles.address} numberOfLines={2}>
+                <Text style={styles.address}>
                   {hospital.address || hospital.city}
                 </Text>
+              )}
+              {hospital.contactPhone && (
+                <View style={styles.phoneRow}>
+                  <MaterialIcons name="phone" size={18} color="#e91e63" />
+                  <Text style={styles.phoneText}>{hospital.contactPhone}</Text>
+                </View>
               )}
             </TouchableOpacity>
           ))

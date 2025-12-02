@@ -1,5 +1,5 @@
 // app/(main)/sos.tsx - แก้ไข footer ไม่ให้ถูกบัง
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,34 +7,27 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
+  Animated,
 } from "react-native";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import EmergencyGradeSelector from "@/src/components/sos/EmergencyGradeSelector";
+import EmergencyGradeSelector from "../../src/components/sos/EmergencyGradeSelector";
 import EmergencyTypeSelector, {
   EMERGENCY_OPTIONS,
-} from "@/src/components/sos/EmergencyTypeSelector";
-import RequestStatus from "@/src/components/sos/RequestStatus";
-import { createEmergencyRequest } from "@/src/api/sos/sos";
+} from "../../src/components/sos/EmergencyTypeSelector";
+import RequestStatus from "../../src/components/sos/RequestStatus";
+import { createEmergencyRequest } from "../../src/api/sos/sos";
 import {
   EmergencyGrade,
   EmergencyType,
   EmergencyResponse,
-  EmergencyStatus,
-} from "@/src/types/sos";
+} from "../../src/types/sos";
 import { useTranslation } from "react-i18next";
 
 type Step = "initial" | "grade" | "type" | "status";
 
-const ACTIVE_EMERGENCY_KEY = "@active_emergency";
-
 export default function SOSScreens() {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
   const [step, setStep] = useState<Step>("initial");
   const [selectedGrade, setSelectedGrade] = useState<EmergencyGrade | null>(
     null
@@ -42,49 +35,6 @@ export default function SOSScreens() {
   const [selectedTypeId, setSelectedTypeId] = useState<string | null>(null);
   const [emergency, setEmergency] = useState<EmergencyResponse | null>(null);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    loadActiveEmergency();
-  }, []);
-
-  const loadActiveEmergency = async () => {
-    try {
-      const stored = await AsyncStorage.getItem(ACTIVE_EMERGENCY_KEY);
-      if (stored) {
-        const activeEmergency: EmergencyResponse = JSON.parse(stored);
-        if (
-          activeEmergency.status !== EmergencyStatus.COMPLETED &&
-          activeEmergency.status !== EmergencyStatus.CANCELLED
-        ) {
-          setEmergency(activeEmergency);
-          setStep("status");
-        } else {
-          await AsyncStorage.removeItem(ACTIVE_EMERGENCY_KEY);
-        }
-      }
-    } catch (error) {
-      console.error("Failed to load active emergency:", error);
-    }
-  };
-
-  const saveActiveEmergency = async (emergencyData: EmergencyResponse) => {
-    try {
-      await AsyncStorage.setItem(
-        ACTIVE_EMERGENCY_KEY,
-        JSON.stringify(emergencyData)
-      );
-    } catch (error) {
-      console.error("Failed to save active emergency:", error);
-    }
-  };
-
-  const clearActiveEmergency = async () => {
-    try {
-      await AsyncStorage.removeItem(ACTIVE_EMERGENCY_KEY);
-    } catch (error) {
-      console.error("Failed to clear active emergency:", error);
-    }
-  };
 
   const sendSOS = async () => {
     if (!selectedGrade || !selectedTypeId) return;
@@ -97,37 +47,19 @@ export default function SOSScreens() {
     setLoading(true);
     try {
       const res = await createEmergencyRequest({
-        description: `เหตุฉุกเฉิน: ${selectedOption.label} - ระดับ ${selectedGrade}`,
+        description: `${t("sos.title")}: ${selectedOption.label} - ${t(
+          "sos.selectGrade"
+        )} ${selectedGrade}`,
         grade: selectedGrade,
         type: selectedOption.backendType,
       });
+
       setEmergency(res);
-      await saveActiveEmergency(res);
       setStep("status");
     } catch (err: any) {
-      Alert.alert("ผิดพลาด", err.message || "ไม่สามารถส่งสัญญาณได้");
+      Alert.alert(t("common.error"), err.message || t("sos.send"));
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleCancelEmergency = async () => {
-    await clearActiveEmergency();
-    setEmergency(null);
-    setStep("initial");
-    setSelectedGrade(null);
-    setSelectedTypeId(null);
-  };
-
-  const handleEmergencyUpdate = async (updatedEmergency: EmergencyResponse) => {
-    setEmergency(updatedEmergency);
-    if (
-      updatedEmergency.status === EmergencyStatus.COMPLETED ||
-      updatedEmergency.status === EmergencyStatus.CANCELLED
-    ) {
-      await clearActiveEmergency();
-    } else {
-      await saveActiveEmergency(updatedEmergency);
     }
   };
 
@@ -135,8 +67,8 @@ export default function SOSScreens() {
     return (
       <RequestStatus
         emergency={emergency}
-        onCancel={handleCancelEmergency}
-        onUpdate={handleEmergencyUpdate}
+        onCancel={() => setStep("initial")}
+        onUpdate={(updated) => setEmergency(updated)}
       />
     );
   }
@@ -148,7 +80,7 @@ export default function SOSScreens() {
           <TouchableOpacity onPress={() => setStep("initial")}>
             <MaterialIcons name="arrow-back" size={28} color="#333" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>เลือกความรุนแรง</Text>
+          <Text style={styles.headerTitle}>{t("sos.selectGrade")}</Text>
         </View>
         <EmergencyGradeSelector
           selectedGrade={selectedGrade}
@@ -168,7 +100,7 @@ export default function SOSScreens() {
           <TouchableOpacity onPress={() => setStep("grade")}>
             <MaterialIcons name="arrow-back" size={28} color="#333" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>ประเภทเหตุการณ์</Text>
+          <Text style={styles.headerTitle}>{t("sos.selectType")}</Text>
         </View>
         <View style={styles.content}>
           <EmergencyTypeSelector
@@ -176,29 +108,27 @@ export default function SOSScreens() {
             onSelect={setSelectedTypeId}
           />
         </View>
-        <View style={[styles.footer, { paddingBottom: insets.bottom + 110 }]}>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.cancelBtn}
-              onPress={() => setStep("initial")}
-            >
-              <Text style={styles.cancelText}>ยกเลิก</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.confirmBtn,
-                (!selectedTypeId || loading) && { opacity: 0.6 },
-              ]}
-              onPress={sendSOS}
-              disabled={!selectedTypeId || loading}
-            >
-              {loading ? (
-                <ActivityIndicator color="white" />
-              ) : (
-                <Text style={styles.confirmText}>ยืนยันแจ้งเหตุฉุกเฉิน</Text>
-              )}
-            </TouchableOpacity>
-          </View>
+        <View style={styles.footer}>
+          <TouchableOpacity
+            style={styles.cancelBtn}
+            onPress={() => setStep("initial")}
+          >
+            <Text style={styles.cancelText}>{t("common.cancel")}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.confirmBtn,
+              (!selectedTypeId || loading) && { opacity: 0.6 },
+            ]}
+            onPress={sendSOS}
+            disabled={!selectedTypeId || loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text style={styles.confirmText}>{t("sos.send")}</Text>
+            )}
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     );
@@ -207,8 +137,8 @@ export default function SOSScreens() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.initial}>
-        <Text style={styles.title}>คุณกำลังอยู่ในภาวะฉุกเฉินหรือไม่?</Text>
-        <Text style={styles.subtitle}>กดปุ่มเพื่อขอความช่วยเหลือทันที</Text>
+        <Text style={styles.title}>{t("sos.title")}</Text>
+        <Text style={styles.subtitle}>{t("sos.subtitle")}</Text>
         <TouchableOpacity
           style={styles.bigSosBtn}
           onPress={() => setStep("grade")}
@@ -217,7 +147,7 @@ export default function SOSScreens() {
           <Text style={styles.sosText}>SOS</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.cancelBtnSmall} onPress={() => {}}>
-          <Text style={styles.cancelTextSmall}>ยกเลิก</Text>
+          <Text style={styles.cancelTextSmall}>{t("common.cancel")}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -263,44 +193,35 @@ const styles = StyleSheet.create({
   cancelBtnSmall: { marginTop: 40, padding: 16 },
   cancelTextSmall: { fontSize: 18, color: "#666" },
   footer: {
+    flexDirection: "row",
     padding: 20,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    paddingBottom: 30,
+    gap: 16,
+    borderTopWidth: 1,
+    borderColor: "#E5E7EB",
     backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 20,
-    zIndex: 100,
   },
-  buttonContainer: { flexDirection: "row", gap: 12 },
   cancelBtn: {
     flex: 1,
-    height: 56,
+    padding: 16,
     backgroundColor: "#F3F4F6",
-    borderRadius: 16,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
   },
-  cancelText: { fontSize: 16, fontWeight: "600", color: "#4B5563" },
+  cancelText: {
+    textAlign: "center",
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#374151",
+  },
   confirmBtn: {
     flex: 2,
-    height: 56,
+    padding: 16,
     backgroundColor: "#FF3B30",
-    borderRadius: 16,
+    borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#FF3B30",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
   },
-  confirmText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "bold",
-    letterSpacing: 0.5,
-  },
+  confirmText: { color: "white", fontSize: 16, fontWeight: "bold" },
 });

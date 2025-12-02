@@ -1,6 +1,7 @@
 import { Tabs } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useColorScheme } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function MainLayout() {
   const scheme = useColorScheme();
@@ -11,17 +12,27 @@ export default function MainLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: isDark ? "#111827" : "#FFFFFF",
-          borderTopColor: isDark ? "#1F2937" : "#E5E7EB",
-          height: 72,
-          paddingBottom: 12,
-          paddingTop: 8,
+          backgroundColor: "#FFFFFF",
+          borderTopColor: "#E5E7EB",
+          borderTopWidth: 1,
+          height: 80,
+          paddingBottom: 20,
+          paddingTop: 10,
+          elevation: 8,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 8,
         },
-        tabBarActiveTintColor: "#DC2626",
-        tabBarInactiveTintColor: "#6B7280",
+        tabBarActiveTintColor: "#B8A4F5",
+        tabBarInactiveTintColor: "#9CA3AF",
         tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: "600",
+          fontSize: 11,
+          fontWeight: "700",
+          marginTop: 4,
+        },
+        tabBarIconStyle: {
+          marginTop: 4,
         },
       }}
     >
@@ -29,8 +40,12 @@ export default function MainLayout() {
         name="home"
         options={{
           title: "หน่วยฉุกเฉิน",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="emergency" size={size} color={color} />
+          tabBarIcon: ({ color, focused, size }) => (
+            <MaterialIcons 
+              name="emergency" 
+              size={focused ? 28 : 24} 
+              color={focused ? "#B8A4F5" : "#9CA3AF"} 
+            />
           ),
         }}
       />
@@ -38,8 +53,12 @@ export default function MainLayout() {
         name="nearby"
         options={{
           title: "โรงพยาบาล",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="local-hospital" size={size} color={color} />
+          tabBarIcon: ({ color, focused, size }) => (
+            <MaterialIcons 
+              name="local-hospital" 
+              size={focused ? 28 : 24} 
+              color={focused ? "#FF6B9D" : "#9CA3AF"} 
+            />
           ),
         }}
       />
@@ -47,8 +66,12 @@ export default function MainLayout() {
         name="sos"
         options={{
           title: "SOS",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="shield" size={size} color={color} />
+          tabBarIcon: ({ color, focused, size }) => (
+            <MaterialIcons 
+              name="emergency" 
+              size={focused ? 32 : 26} 
+              color={focused ? "#DC2626" : "#9CA3AF"} 
+            />
           ),
         }}
       />
@@ -56,8 +79,12 @@ export default function MainLayout() {
         name="profile"
         options={{
           title: "โปรไฟล์",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="person" size={size} color={color} />
+          tabBarIcon: ({ color, focused, size }) => (
+            <MaterialIcons 
+              name={focused ? "person" : "person-outline"} 
+              size={focused ? 28 : 24} 
+              color={focused ? "#6366F1" : "#9CA3AF"} 
+            />
           ),
         }}
       />

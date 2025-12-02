@@ -11,16 +11,14 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
-import { useTheme } from "@/src/hooks/useTheme";
-import { useThemedStyles } from "@/src/hooks/useTheme";
-import { useTranslation } from "react-i18next";
-import { useProfileController } from "@/src/hooks/profile/useProfileController";
-import ConfirmationModal from "@/src/components/shared/ConfirmationModal";
-import { getUserMeApi } from "@/src/api/user/user";
+import { useTheme, useThemedStyles } from "../../src/hooks/useTheme";
+import { useProfileController } from "../../src/hooks/profile/useProfileController";
+import ConfirmationModal from "../../src/components/shared/ConfirmationModal";
+import { getUserMeApi } from "../../src/api/user/user";
 import { useRouter } from "expo-router";
 
 export default function ProfileScreen() {
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
   const { theme } = useTheme();
   const router = useRouter();
   const {
@@ -253,7 +251,7 @@ export default function ProfileScreen() {
           <View style={styles.avatarContainer}>
             <View>
               <Image
-                source={avatarUrl ? { uri: avatarUrl } : require("@/assets/images/android-icon-background.png")}
+                source={avatarUrl ? { uri: avatarUrl } : require("../../assets/icon.png")}
                 style={styles.avatar}
                 contentFit="cover"
                 transition={400}

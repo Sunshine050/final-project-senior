@@ -4,48 +4,73 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  FlatList,
+  ScrollView,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { EmergencyType } from "../../types/sos";
 
 export interface EmergencyOption {
   id: string;
   label: string;
+  simpleLabel: string;
   icon: string;
   backendType: EmergencyType;
+  color: string;
+  gradient: readonly [string, string];
+  lightBg: string;
 }
 
 export const EMERGENCY_OPTIONS: EmergencyOption[] = [
   {
     id: "accident",
     label: "อุบัติเหตุ",
+    simpleLabel: "อุบัติเหตุ",
     icon: "car-crash",
     backendType: EmergencyType.ACCIDENT,
+    color: "#EF4444",
+    gradient: ["#F87171", "#EF4444"] as const,
+    lightBg: "#FEE2E2",
   },
   {
     id: "unconscious",
     label: "หมดสติ",
+    simpleLabel: "หมดสติ",
     icon: "favorite",
     backendType: EmergencyType.UNCONSCIOUS,
+    color: "#DC2626",
+    gradient: ["#EF4444", "#DC2626"] as const,
+    lightBg: "#FEE2E2",
   },
   {
     id: "fall",
     label: "ล้ม/บาดเจ็บ",
+    simpleLabel: "ล้มหรือบาดเจ็บ",
     icon: "accessible",
     backendType: EmergencyType.FALL,
+    color: "#F59E0B",
+    gradient: ["#FBBF24", "#F59E0B"] as const,
+    lightBg: "#FEF3C7",
   },
   {
     id: "fire",
     label: "ไฟไหม้",
+    simpleLabel: "ไฟไหม้",
     icon: "local-fire-department",
     backendType: EmergencyType.FIRE,
+    color: "#F97316",
+    gradient: ["#FB923C", "#F97316"] as const,
+    lightBg: "#FFEDD5",
   },
   {
     id: "other",
     label: "อื่นๆ",
+    simpleLabel: "เหตุการณ์อื่นๆ",
     icon: "help",
     backendType: EmergencyType.OTHER,
+    color: "#6B7280",
+    gradient: ["#9CA3AF", "#6B7280"] as const,
+    lightBg: "#F3F4F6",
   },
 ];
 
@@ -59,83 +84,116 @@ export default function EmergencyTypeSelector({
   onSelect,
 }: EmergencyTypeSelectorProps) {
   return (
-    <FlatList
-      data={EMERGENCY_OPTIONS}
-      numColumns={2}
-      contentContainerStyle={styles.container}
-      columnWrapperStyle={styles.row}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => {
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      showsVerticalScrollIndicator={false}
+    >
+      {EMERGENCY_OPTIONS.map((item) => {
         const isSelected = selectedTypeId === item.id;
         return (
           <TouchableOpacity
-            style={[styles.card, isSelected && styles.cardSelected]}
+            key={item.id}
+            style={[
+              styles.card,
+              isSelected && styles.cardSelected,
+              isSelected && { borderLeftColor: item.color, borderLeftWidth: 5 },
+            ]}
             onPress={() => onSelect(item.id)}
+            activeOpacity={0.7}
           >
-            <View
-              style={[
-                styles.iconContainer,
-                isSelected && styles.iconContainerSelected,
-              ]}
-            >
-              <MaterialIcons
-                name={item.icon as any}
-                size={32}
-                color={isSelected ? "#FFFFFF" : "#DC2626"}
-              />
+            <View style={styles.cardHeader}>
+              <LinearGradient
+                colors={item.gradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={[
+                  styles.iconBadge,
+                  {
+                    shadowColor: item.color,
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 4,
+                    elevation: 4,
+                  },
+                ]}
+              >
+                <MaterialIcons
+                  name={item.icon as any}
+                  size={26}
+                  color="#fff"
+                />
+              </LinearGradient>
+              <View style={styles.cardContent}>
+                <Text style={[styles.label, isSelected && { color: item.color }]}>
+                  {item.simpleLabel}
+                </Text>
+              </View>
+              {isSelected && (
+                <View style={[styles.checkBadge, { backgroundColor: item.lightBg }]}>
+                  <MaterialIcons name="check-circle" size={28} color={item.color} />
+                </View>
+              )}
             </View>
-            <Text style={[styles.label, isSelected && styles.labelSelected]}>
-              {item.label}
-            </Text>
           </TouchableOpacity>
         );
-      }}
-    />
+      })}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    flex: 1,
   },
-  row: {
-    justifyContent: "space-between",
+  contentContainer: {
+    padding: 20,
     gap: 12,
   },
   card: {
-    flex: 1,
     backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 20,
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#E5E7EB",
-    minHeight: 140,
-    justifyContent: "center",
+    borderRadius: 20,
+    padding: 18,
+    marginBottom: 12,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    borderLeftWidth: 5,
+    borderLeftColor: "transparent",
   },
   cardSelected: {
-    borderColor: "#DC2626",
-    backgroundColor: "#FEE2E2",
+    elevation: 5,
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    backgroundColor: "#FAFAFA",
   },
-  iconContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: "#FEE2E2",
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+  },
+  iconBadge: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 12,
   },
-  iconContainerSelected: {
-    backgroundColor: "#DC2626",
+  cardContent: {
+    flex: 1,
   },
   label: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 18,
+    fontWeight: "700",
     color: "#111827",
-    textAlign: "center",
   },
-  labelSelected: {
-    color: "#DC2626",
+  checkBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

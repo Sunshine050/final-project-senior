@@ -7,6 +7,7 @@ interface ThemeColors {
   secondary: string;
   background: string;
   card: string;
+  surface: string;
   text: string;
   textSecondary: string;
   border: string;
@@ -17,6 +18,13 @@ interface ThemeColors {
 
 interface Theme {
   colors: ThemeColors;
+  spacing: {
+    xs: number;
+    s: number;
+    m: number;
+    l: number;
+    xl: number;
+  };
   isDark: boolean;
 }
 
@@ -25,6 +33,7 @@ const lightColors: ThemeColors = {
   secondary: '#6B7280',
   background: '#F9FAFB',
   card: '#FFFFFF',
+  surface: '#FFFFFF',
   text: '#111827',
   textSecondary: '#6B7280',
   border: '#E5E7EB',
@@ -38,6 +47,7 @@ const darkColors: ThemeColors = {
   secondary: '#9CA3AF',
   background: '#111827',
   card: '#1F2937',
+  surface: '#1F2937',
   text: '#F9FAFB',
   textSecondary: '#9CA3AF',
   border: '#374151',
@@ -85,6 +95,13 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const theme: Theme = {
     colors: isDark ? darkColors : lightColors,
+    spacing: {
+      xs: 4,
+      s: 8,
+      m: 16,
+      l: 24,
+      xl: 32,
+    },
     isDark,
   };
 

@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useSettings } from "@/src/context/SettingsContext";
+import { useSettings } from "../src/context/SettingsContext";
 
 export default function SettingsScreen() {
     const router = useRouter();

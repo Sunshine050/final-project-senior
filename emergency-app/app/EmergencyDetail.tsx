@@ -1,4 +1,3 @@
-// app/EmergencyDetail.tsx - Sticky Buttons & Flexbox Layout
 import React from "react";
 import {
   View,
@@ -11,7 +10,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useTheme, useThemedStyles } from "@/src/hooks/useTheme";
+import { useTheme, useThemedStyles } from "../src/hooks/useTheme";
 import { LinearGradient } from "expo-linear-gradient";
 
 const TYPE_CONFIG = {
@@ -23,7 +22,7 @@ const TYPE_CONFIG = {
     emoji: "💊",
     services: ["ฉุกเฉิน 24 ชม.", "ห้องฉุกเฉิน", "รถพยาบาล"],
     hotline: "1669",
-    lightBg: "#FFF0F5",
+    lightBg: "#FFF0F5"
   },
   police: {
     title: "สถานีตำรวจ",
@@ -33,7 +32,7 @@ const TYPE_CONFIG = {
     emoji: "🛡️",
     services: ["เหตุฉุกเฉิน", "แจ้งความ", "ตรวจการณ์"],
     hotline: "191",
-    lightBg: "#E6F3FF",
+    lightBg: "#E6F3FF"
   },
   fire: {
     title: "หน่วยดับเพลิง",
@@ -43,7 +42,7 @@ const TYPE_CONFIG = {
     emoji: "🔥",
     services: ["ดับเพลิง", "กู้ภัย", "ช่วยเหลือ"],
     hotline: "199",
-    lightBg: "#FFF4E6",
+    lightBg: "#FFF4E6"
   },
   rescue: {
     title: "หน่วยกู้ภัย",
@@ -53,7 +52,7 @@ const TYPE_CONFIG = {
     emoji: "🌿",
     services: ["กู้ชีพ", "รถพยาบาล", "ช่วยเหลือ"],
     hotline: "1554",
-    lightBg: "#F0FFF4",
+    lightBg: "#F0FFF4"
   },
 };
 
@@ -71,15 +70,14 @@ export default function EmergencyDetail() {
   } = params;
 
   const { theme } = useTheme();
-  const info =
-    TYPE_CONFIG[type as keyof typeof TYPE_CONFIG] || TYPE_CONFIG.rescue;
+  const info = TYPE_CONFIG[type as keyof typeof TYPE_CONFIG] || TYPE_CONFIG.rescue;
+
   const estimatedTime = distance
     ? Math.ceil((Number(distance) / 40) * 60)
     : null;
 
   const getDistanceLevel = (dist: number) => {
-    if (dist < 1)
-      return { text: "ใกล้มาก", color: "#90EE90", icon: "check-circle" };
+    if (dist < 1) return { text: "ใกล้มาก", color: "#90EE90", icon: "check-circle" };
     if (dist < 3) return { text: "ใกล้", color: "#87CEEB", icon: "info" };
     if (dist < 5) return { text: "ปานกลาง", color: "#FFD700", icon: "warning" };
     return { text: "ไกล", color: "#FFB6C1", icon: "error" };
@@ -88,17 +86,26 @@ export default function EmergencyDetail() {
   const distanceLevel = distance ? getDistanceLevel(Number(distance)) : null;
 
   const handleCall = () => phone && Linking.openURL(`tel:${phone}`);
+
   const handleHotlineCall = () => Linking.openURL(`tel:${info.hotline}`);
+
   const handleDirections = () =>
-    Linking.openURL(
-      `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`
-    );
+    Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`);
 
   const styles = useThemedStyles((theme) =>
     StyleSheet.create({
-      container: { flex: 1, backgroundColor: "#FAFAFA" },
-      scrollContent: { paddingBottom: 90 },
-      header: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16 },
+      container: {
+        flex: 1,
+        backgroundColor: "#FAFAFA",
+      },
+      scrollContent: {
+        paddingBottom: 90,
+      },
+      header: {
+        paddingHorizontal: 20,
+        paddingTop: 12,
+        paddingBottom: 16,
+      },
       backButton: {
         width: 40,
         height: 40,
@@ -108,8 +115,13 @@ export default function EmergencyDetail() {
         alignItems: "center",
         marginBottom: 20,
       },
-      headerContent: { alignItems: "center", gap: 12 },
-      emoji: { fontSize: 56 },
+      headerContent: {
+        alignItems: "center",
+        gap: 12,
+      },
+      emoji: {
+        fontSize: 56,
+      },
       title: {
         fontSize: 24,
         fontWeight: "800",
@@ -125,8 +137,15 @@ export default function EmergencyDetail() {
         paddingVertical: 6,
         borderRadius: 16,
       },
-      typeText: { color: "#fff", fontWeight: "600", fontSize: 13 },
-      content: { paddingHorizontal: 20, paddingTop: 20 },
+      typeText: {
+        color: "#fff",
+        fontWeight: "600",
+        fontSize: 13,
+      },
+      content: {
+        paddingHorizontal: 20,
+        paddingTop: 20,
+      },
       infoGrid: {
         flexDirection: "row",
         flexWrap: "wrap",
@@ -144,7 +163,11 @@ export default function EmergencyDetail() {
         shadowRadius: 8,
         minWidth: "100%",
       },
-      infoCardRow: { flexDirection: "row", alignItems: "center", gap: 14 },
+      infoCardRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 14,
+      },
       iconCircle: {
         width: 52,
         height: 52,
@@ -152,7 +175,9 @@ export default function EmergencyDetail() {
         justifyContent: "center",
         alignItems: "center",
       },
-      infoText: { flex: 1 },
+      infoText: {
+        flex: 1,
+      },
       infoLabel: {
         fontSize: 12,
         color: "#9E9E9E",
@@ -165,14 +190,21 @@ export default function EmergencyDetail() {
         fontWeight: "600",
         lineHeight: 20,
       },
-      infoSubtext: { fontSize: 12, color: "#9E9E9E", marginTop: 3 },
+      infoSubtext: {
+        fontSize: 12,
+        color: "#9E9E9E",
+        marginTop: 3,
+      },
       distanceBadge: {
         flexDirection: "row",
         alignItems: "center",
         gap: 4,
         marginTop: 6,
       },
-      distanceBadgeText: { fontSize: 12, fontWeight: "600" },
+      distanceBadgeText: {
+        fontSize: 12,
+        fontWeight: "600",
+      },
       servicesRow: {
         flexDirection: "row",
         flexWrap: "wrap",
@@ -185,7 +217,11 @@ export default function EmergencyDetail() {
         paddingVertical: 6,
         borderRadius: 14,
       },
-      serviceText: { fontSize: 12, color: info.color, fontWeight: "600" },
+      serviceText: {
+        fontSize: 12,
+        color: info.color,
+        fontWeight: "600",
+      },
       hotlineCard: {
         backgroundColor: "#FFF9E6",
         borderRadius: 18,
@@ -210,14 +246,20 @@ export default function EmergencyDetail() {
         justifyContent: "center",
         alignItems: "center",
       },
-      hotlineText: { flex: 1 },
+      hotlineText: {
+        flex: 1,
+      },
       hotlineLabel: {
         fontSize: 12,
         color: "#F57C00",
         fontWeight: "600",
         marginBottom: 3,
       },
-      hotlineNumber: { fontSize: 22, color: "#F57C00", fontWeight: "800" },
+      hotlineNumber: {
+        fontSize: 22,
+        color: "#F57C00",
+        fontWeight: "800",
+      },
       stickyButtonContainer: {
         position: "absolute",
         bottom: 0,
@@ -235,7 +277,10 @@ export default function EmergencyDetail() {
         shadowOpacity: 0.1,
         shadowRadius: 8,
       },
-      actionButtons: { flexDirection: "row", gap: 12 },
+      actionButtons: {
+        flexDirection: "row",
+        gap: 12,
+      },
       actionButton: {
         flex: 1,
         borderRadius: 18,
@@ -253,7 +298,11 @@ export default function EmergencyDetail() {
         alignItems: "center",
         gap: 8,
       },
-      buttonText: { color: "#fff", fontWeight: "700", fontSize: 16 },
+      buttonText: {
+        color: "#fff",
+        fontWeight: "700",
+        fontSize: 16,
+      },
     })
   );
 
@@ -290,17 +339,8 @@ export default function EmergencyDetail() {
             {distance && (
               <View style={styles.infoCard}>
                 <View style={styles.infoCardRow}>
-                  <View
-                    style={[
-                      styles.iconCircle,
-                      { backgroundColor: info.lightBg },
-                    ]}
-                  >
-                    <MaterialIcons
-                      name="explore"
-                      size={28}
-                      color={info.color}
-                    />
+                  <View style={[styles.iconCircle, { backgroundColor: info.lightBg }]}>
+                    <MaterialIcons name="explore" size={28} color={info.color} />
                   </View>
                   <View style={styles.infoText}>
                     <Text style={styles.infoLabel}>ระยะทาง</Text>
@@ -314,17 +354,8 @@ export default function EmergencyDetail() {
                     )}
                     {distanceLevel && (
                       <View style={styles.distanceBadge}>
-                        <MaterialIcons
-                          name={distanceLevel.icon as any}
-                          size={16}
-                          color={distanceLevel.color}
-                        />
-                        <Text
-                          style={[
-                            styles.distanceBadgeText,
-                            { color: distanceLevel.color },
-                          ]}
-                        >
+                        <MaterialIcons name={distanceLevel.icon as any} size={16} color={distanceLevel.color} />
+                        <Text style={[styles.distanceBadgeText, { color: distanceLevel.color }]}>
                           {distanceLevel.text}
                         </Text>
                       </View>
@@ -336,14 +367,8 @@ export default function EmergencyDetail() {
 
             <View style={styles.infoCard}>
               <View style={styles.infoCardRow}>
-                <View
-                  style={[styles.iconCircle, { backgroundColor: info.lightBg }]}
-                >
-                  <MaterialIcons
-                    name="local-hospital"
-                    size={28}
-                    color={info.color}
-                  />
+                <View style={[styles.iconCircle, { backgroundColor: info.lightBg }]}>
+                  <MaterialIcons name="local-hospital" size={28} color={info.color} />
                 </View>
                 <View style={styles.infoText}>
                   <Text style={styles.infoLabel}>บริการ</Text>
@@ -361,17 +386,14 @@ export default function EmergencyDetail() {
             {address && (
               <View style={styles.infoCard}>
                 <View style={styles.infoCardRow}>
-                  <View
-                    style={[
-                      styles.iconCircle,
-                      { backgroundColor: info.lightBg },
-                    ]}
-                  >
+                  <View style={[styles.iconCircle, { backgroundColor: info.lightBg }]}>
                     <MaterialIcons name="place" size={28} color={info.color} />
                   </View>
                   <View style={styles.infoText}>
                     <Text style={styles.infoLabel}>ที่อยู่</Text>
-                    <Text style={styles.infoValue}>{address}</Text>
+                    <Text style={styles.infoValue}>
+                      {address}
+                    </Text>
                   </View>
                 </View>
               </View>
@@ -380,12 +402,7 @@ export default function EmergencyDetail() {
             {phone && (
               <View style={styles.infoCard}>
                 <View style={styles.infoCardRow}>
-                  <View
-                    style={[
-                      styles.iconCircle,
-                      { backgroundColor: info.lightBg },
-                    ]}
-                  >
+                  <View style={[styles.iconCircle, { backgroundColor: info.lightBg }]}>
                     <MaterialIcons name="phone" size={28} color={info.color} />
                   </View>
                   <View style={styles.infoText}>
@@ -453,3 +470,4 @@ export default function EmergencyDetail() {
     </SafeAreaView>
   );
 }
+
