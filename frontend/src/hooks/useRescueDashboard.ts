@@ -43,11 +43,27 @@ export function useRescueDashboard(): UseRescueDashboardReturn {
   const [isTeamsLoading, setIsTeamsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Fetch assigned cases
+  const refreshCases = useCallback(async () => {
+    try {
+      setIsCasesLoading(true);
+      setError(null);
+      const data = await emergencyService.getRescueAssignedCases();
+      setCases(data);
+    } catch (err: any) {
+      console.error('Failed to fetch cases:', err);
+      const errorMessage = err.response?.data?.message || 'ไม่สามารถโหลดข้อมูลได้';
+      setError(errorMessage);
+    } finally {
+      setIsCasesLoading(false);
+    }
+  }, []);
+
   // WebSocket handlers
   const handleEmergencyNew = useCallback((data: EmergencyEventPayload) => {
     // Refresh cases when new emergency is created
     refreshCases();
-  }, []);
+  }, [refreshCases]);
 
   const handleEmergencyAssigned = useCallback((data: EmergencyEventPayload) => {
     // Update or add the assigned case
@@ -68,7 +84,7 @@ export function useRescueDashboard(): UseRescueDashboardReturn {
       refreshCases();
       return prevCases;
     });
-  }, []);
+  }, [refreshCases]);
 
   const handleStatusUpdate = useCallback((data: EmergencyEventPayload) => {
     setCases((prevCases) => {
@@ -95,20 +111,6 @@ export function useRescueDashboard(): UseRescueDashboardReturn {
     onStatusUpdate: handleStatusUpdate,
   });
 
-  // Fetch assigned cases
-  const refreshCases = useCallback(async () => {
-    try {
-      setIsCasesLoading(true);
-      setError(null);
-      const data = await emergencyService.getRescueAssignedCases();
-      setCases(data);
-    } catch (err) {
-      console.error('Failed to fetch cases:', err);
-      setError('Failed to load assigned cases');
-    } finally {
-      setIsCasesLoading(false);
-    }
-  }, []);
 
   // Fetch rescue teams
   const refreshTeams = useCallback(async () => {

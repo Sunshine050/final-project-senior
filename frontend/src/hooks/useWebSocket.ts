@@ -72,18 +72,21 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
       return;
     }
 
-    if (socketRef.current?.connected) {
-      console.log('WebSocket: Already connected');
-      return;
+    // Disconnect existing socket if any
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+      socketRef.current = null;
     }
 
     const socket = io(WS_URL, {
       auth: { token },
       transports: ['websocket', 'polling'],
       reconnection: true,
-      reconnectionAttempts: 5,
+      reconnectionAttempts: 10,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
+      timeout: 20000,
+      forceNew: true,
     });
 
     socketRef.current = socket;
@@ -95,16 +98,29 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
       onConnect?.();
     });
 
+
+    socket.on('connect_error', (error) => {
+      console.error('WebSocket: Connection error', error.message);
+      setIsConnected(false);
+      onError?.(error);
+    });
+
     socket.on('disconnect', (reason) => {
       console.log('WebSocket: Disconnected', reason);
       setIsConnected(false);
       setJoinedRooms(new Set());
       onDisconnect?.(reason);
-    });
-
-    socket.on('connect_error', (error) => {
-      console.error('WebSocket: Connection error', error.message);
-      onError?.(error);
+      
+      // Auto-reconnect if not manually disconnected
+      if (reason === 'io server disconnect') {
+        // Server disconnected, try to reconnect
+        setTimeout(() => {
+          if (authService.isAuthenticated() && !socketRef.current?.connected) {
+            console.log('WebSocket: Attempting to reconnect...');
+            connect();
+          }
+        }, 2000);
+      }
     });
 
     // Emergency events
@@ -187,13 +203,21 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketRet
   // Auto-connect on mount if token exists
   useEffect(() => {
     if (autoConnect && authService.isAuthenticated()) {
-      connect();
+      // Delay connection slightly to ensure auth is ready
+      const timer = setTimeout(() => {
+        connect();
+      }, 100);
+      
+      return () => {
+        clearTimeout(timer);
+        disconnect();
+      };
     }
 
     return () => {
       disconnect();
     };
-  }, [autoConnect, connect, disconnect]);
+  }, [autoConnect]); // Remove connect/disconnect from deps to prevent re-connection loops
 
   return {
     isConnected,

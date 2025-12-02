@@ -98,14 +98,21 @@ export function useDispatchDashboard(): UseDispatchDashboardReturn {
     rescueTeamId?: string
   ) => {
     try {
+      if (!hospitalId && !rescueTeamId) {
+        throw new Error('ต้องระบุ hospitalId หรือ rescueTeamId อย่างน้อยหนึ่งตัว');
+      }
+      
       await emergencyService.assignEmergency(emergencyId, {
         hospitalId,
         rescueTeamId,
       });
+      
+      // Refresh data after successful assignment
       await refreshData();
     } catch (err: any) {
       console.error('Failed to assign emergency:', err);
-      throw err;
+      const errorMessage = err.response?.data?.message || err.message || 'ไม่สามารถมอบหมายงานได้';
+      throw new Error(errorMessage);
     }
   }, [refreshData]);
 

@@ -2,6 +2,11 @@ import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'ax
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
+// Debug: Log API URL
+if (typeof window !== 'undefined') {
+  console.log('🌐 API Base URL:', API_BASE_URL);
+}
+
 // Create axios instance
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
