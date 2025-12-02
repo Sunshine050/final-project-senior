@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
+import * as Location from "expo-location";
 import EmergencyGradeSelector from "../../src/components/sos/EmergencyGradeSelector";
 import EmergencyTypeSelector, {
   EMERGENCY_OPTIONS,
@@ -23,11 +24,29 @@ import {
   EmergencyResponse,
 } from "../../src/types/sos";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "../../hooks/useAuth";
 
 type Step = "initial" | "grade" | "type" | "status";
 
+// Map EmergencyGrade to EmergencySeverity
+const gradeToSeverity = (grade: EmergencyGrade): "low" | "medium" | "high" | "critical" => {
+  switch (grade) {
+    case EmergencyGrade.LEVEL_1:
+      return "low";
+    case EmergencyGrade.LEVEL_2:
+      return "medium";
+    case EmergencyGrade.LEVEL_3:
+      return "high";
+    case EmergencyGrade.LEVEL_4:
+      return "critical";
+    default:
+      return "medium";
+  }
+};
+
 export default function SOSScreens() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [step, setStep] = useState<Step>("initial");
   const [selectedGrade, setSelectedGrade] = useState<EmergencyGrade | null>(
     null
@@ -46,17 +65,66 @@ export default function SOSScreens() {
 
     setLoading(true);
     try {
+      // Request location permission and get current location
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          t("common.error"),
+          "กรุณาอนุญาตให้เข้าถึงตำแหน่งเพื่อส่งสัญญาณ SOS"
+        );
+        setLoading(false);
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,
+      });
+
+      // Get address from reverse geocoding
+      let address = "ไม่ทราบที่อยู่";
+      try {
+        const [geocode] = await Location.reverseGeocodeAsync({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+        if (geocode) {
+          const addressParts = [
+            geocode.street,
+            geocode.district,
+            geocode.subdistrict,
+            geocode.city,
+            geocode.region,
+            geocode.postalCode,
+          ].filter(Boolean);
+          address = addressParts.join(" ") || "ไม่ทราบที่อยู่";
+        }
+      } catch (e) {
+        console.warn("Reverse geocoding failed:", e);
+      }
+
+      // Get user info
+      const callerName = user
+        ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "ไม่ระบุชื่อ"
+        : "ไม่ระบุชื่อ";
+      const callerPhone = user?.phone || "ไม่ระบุเบอร์โทร";
+
       const res = await createEmergencyRequest({
-        description: `${t("sos.title")}: ${selectedOption.label} - ${t(
-          "sos.selectGrade"
-        )} ${selectedGrade}`,
-        grade: selectedGrade,
-        type: selectedOption.backendType,
+        callerName,
+        callerPhone,
+        description: `${selectedOption.label} - ระดับความรุนแรง: ${selectedGrade}`,
+        severity: gradeToSeverity(selectedGrade),
+        address,
+        location: {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        },
+        emergencyType: selectedOption.backendType,
       });
 
       setEmergency(res);
       setStep("status");
     } catch (err: any) {
+      console.error("SOS Error:", err);
       Alert.alert(t("common.error"), err.message || t("sos.send"));
     } finally {
       setLoading(false);

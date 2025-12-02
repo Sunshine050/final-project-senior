@@ -1,181 +1,320 @@
-import { useState } from 'react';
+import React, { useState } from "react";
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
+  View,
   Text,
   TextInput,
-  View,
-} from 'react-native';
-import { Link, useRouter } from 'expo-router';
+  TouchableOpacity,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import { useAuth } from "../../hooks/useAuth";
 
-import { useAuth } from '../../hooks/useAuth';
-import { colors, radii, spacing } from '../../constants/theme';
-
-const RegisterScreen = () => {
+export default function RegisterScreen() {
   const router = useRouter();
-  const { registerWithEmail, isSubmitting } = useAuth();
-
+  const auth = useAuth();
   const [form, setForm] = useState({
-    firstName: '',
-    lastName: '',
-    phone: '',
-    email: '',
-    password: '',
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    phone: "",
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(false);
 
-  const updateField = (key: keyof typeof form, value: string) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
+  // Safe access to auth methods
+  const registerWithEmail = auth?.registerWithEmail;
+  const isSubmitting = auth?.isSubmitting || isLoading;
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!form.firstName.trim()) {
+      newErrors.firstName = "กรุณากรอกชื่อ";
+    }
+
+    if (!form.lastName.trim()) {
+      newErrors.lastName = "กรุณากรอกนามสกุล";
+    }
+
+    if (!form.email.trim()) {
+      newErrors.email = "กรุณากรอกอีเมล";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      newErrors.email = "รูปแบบอีเมลไม่ถูกต้อง";
+    }
+
+    if (!form.password) {
+      newErrors.password = "กรุณากรอกรหัสผ่าน";
+    } else if (form.password.length < 6) {
+      newErrors.password = "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleRegister = async () => {
-    if (!form.firstName || !form.lastName || !form.email || !form.password) {
-      Alert.alert('ต้องกรอกข้อมูลให้ครบ', 'ชื่อ นามสกุล อีเมล และรหัสผ่านเป็นข้อมูลจำเป็น');
+    if (!registerWithEmail) {
+      Alert.alert("เกิดข้อผิดพลาด", "ระบบยังไม่พร้อม กรุณาลองใหม่อีกครั้ง");
       return;
     }
 
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
     try {
-      await registerWithEmail(form);
-      router.replace('/(tabs)');
+      console.log("Attempting registration with email:", form.email);
+      await registerWithEmail({
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        email: form.email.trim().toLowerCase(),
+        password: form.password,
+        phone: form.phone.trim() || undefined,
+      });
+      console.log("Registration successful, navigating...");
+      Alert.alert("สำเร็จ", "สมัครสมาชิกสำเร็จ", [
+        {
+          text: "ตกลง",
+          onPress: () => {
+            router.replace("/(main)/home" as any);
+          },
+        },
+      ]);
     } catch (error) {
-      Alert.alert('สมัครสมาชิกไม่สำเร็จ', (error as Error).message);
+      console.error("Registration error:", error);
+      const errorMessage =
+        (error as Error).message || "ไม่สามารถสมัครสมาชิกได้";
+      Alert.alert("สมัครสมาชิกไม่สำเร็จ", errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: colors.backgroundDark }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        <Text style={styles.title}>สร้างบัญชีใช้งาน</Text>
-        <Text style={styles.subtitle}>เพื่อให้เรารู้จักคุณและช่วยเหลือได้อย่างรวดเร็ว</Text>
+    <LinearGradient colors={["#F8FAFF", "#FFFFFF"]} style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Logo / Title */}
+          <View style={styles.header}>
+            <Text style={styles.title}>สร้างบัญชีใหม่</Text>
+            <Text style={styles.subtitle}>มาร่วมเป็นส่วนหนึ่งของเรา 💙</Text>
+          </View>
 
-        <View style={styles.form}>
-          <Text style={styles.label}>ชื่อ</Text>
-          <TextInput
-            style={styles.input}
-            value={form.firstName}
-            onChangeText={(value) => updateField('firstName', value)}
-            placeholder="ชื่อจริง"
-            placeholderTextColor={colors.muted}
-          />
+          {/* Form Card */}
+          <View style={styles.card}>
+            <Text style={styles.label}>ชื่อ</Text>
+            <TextInput
+              style={[styles.input, errors.firstName && styles.inputError]}
+              placeholder="กรอกชื่อของคุณ"
+              placeholderTextColor="#b0b0b0"
+              value={form.firstName}
+              onChangeText={(t) => {
+                setForm({ ...form, firstName: t });
+                if (errors.firstName) {
+                  setErrors({ ...errors, firstName: "" });
+                }
+              }}
+            />
+            {errors.firstName && (
+              <Text style={styles.errorText}>{errors.firstName}</Text>
+            )}
 
-          <Text style={[styles.label, { marginTop: spacing.md }]}>นามสกุล</Text>
-          <TextInput
-            style={styles.input}
-            value={form.lastName}
-            onChangeText={(value) => updateField('lastName', value)}
-            placeholder="นามสกุล"
-            placeholderTextColor={colors.muted}
-          />
+            <Text style={styles.label}>นามสกุล</Text>
+            <TextInput
+              style={[styles.input, errors.lastName && styles.inputError]}
+              placeholder="กรอกนามสกุลของคุณ"
+              placeholderTextColor="#b0b0b0"
+              value={form.lastName}
+              onChangeText={(t) => {
+                setForm({ ...form, lastName: t });
+                if (errors.lastName) {
+                  setErrors({ ...errors, lastName: "" });
+                }
+              }}
+            />
+            {errors.lastName && (
+              <Text style={styles.errorText}>{errors.lastName}</Text>
+            )}
 
-          <Text style={[styles.label, { marginTop: spacing.md }]}>เบอร์โทรศัพท์</Text>
-          <TextInput
-            style={styles.input}
-            keyboardType="phone-pad"
-            value={form.phone}
-            onChangeText={(value) => updateField('phone', value)}
-            placeholder="08x-xxx-xxxx"
-            placeholderTextColor={colors.muted}
-          />
+            <Text style={styles.label}>อีเมล</Text>
+            <TextInput
+              style={[styles.input, errors.email && styles.inputError]}
+              placeholder="example@mail.com"
+              placeholderTextColor="#b0b0b0"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={form.email}
+              onChangeText={(t) => {
+                setForm({ ...form, email: t });
+                if (errors.email) {
+                  setErrors({ ...errors, email: "" });
+                }
+              }}
+            />
+            {errors.email && (
+              <Text style={styles.errorText}>{errors.email}</Text>
+            )}
 
-          <Text style={[styles.label, { marginTop: spacing.md }]}>อีเมล</Text>
-          <TextInput
-            style={styles.input}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={form.email}
-            onChangeText={(value) => updateField('email', value)}
-            placeholder="example@email.com"
-            placeholderTextColor={colors.muted}
-          />
+            <Text style={styles.label}>เบอร์โทรศัพท์ (ไม่บังคับ)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="08X-XXX-XXXX"
+              placeholderTextColor="#b0b0b0"
+              keyboardType="phone-pad"
+              value={form.phone}
+              onChangeText={(t) => setForm({ ...form, phone: t })}
+            />
 
-          <Text style={[styles.label, { marginTop: spacing.md }]}>รหัสผ่าน</Text>
-          <TextInput
-            style={styles.input}
-            secureTextEntry
-            value={form.password}
-            onChangeText={(value) => updateField('password', value)}
-            placeholder="ขั้นต่ำ 8 ตัวอักษร"
-            placeholderTextColor={colors.muted}
-          />
+            <Text style={styles.label}>รหัสผ่าน</Text>
+            <TextInput
+              style={[styles.input, errors.password && styles.inputError]}
+              placeholder="กรอกรหัสผ่าน (อย่างน้อย 6 ตัวอักษร)"
+              secureTextEntry
+              placeholderTextColor="#b0b0b0"
+              value={form.password}
+              onChangeText={(t) => {
+                setForm({ ...form, password: t });
+                if (errors.password) {
+                  setErrors({ ...errors, password: "" });
+                }
+              }}
+            />
+            {errors.password && (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            )}
 
-          <Pressable style={[styles.button, { marginTop: spacing.lg }]} onPress={handleRegister}>
-            <Text style={styles.buttonText}>
-              {isSubmitting ? 'กำลังสร้างบัญชี...' : 'สมัครสมาชิก'}
-            </Text>
-          </Pressable>
-        </View>
+            {/* Register Button */}
+            <TouchableOpacity
+              activeOpacity={0.8}
+              style={styles.buttonWrapper}
+              onPress={handleRegister}
+              disabled={isSubmitting}
+            >
+              <LinearGradient
+                colors={
+                  isSubmitting ? ["#B0C4DE", "#8FA8D0"] : ["#7BA8F5", "#4F74D8"]
+                }
+                style={styles.button}
+              >
+                {isSubmitting ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.buttonText}>สมัครสมาชิก</Text>
+                )}
+              </LinearGradient>
+            </TouchableOpacity>
 
-        <Text style={styles.footer}>
-          มีบัญชีอยู่แล้ว?
-          <Link href="/(auth)/login" style={styles.link}>
-            กลับไปเข้าสู่ระบบ
-          </Link>
-        </Text>
-      </ScrollView>
-    </KeyboardAvoidingView>
+            {/* Login Link */}
+            <TouchableOpacity
+              onPress={() => router.push("/(auth)/login")}
+              style={{ marginTop: 18 }}
+            >
+              <Text style={styles.loginText}>
+                มีบัญชีอยู่แล้ว ?{" "}
+                <Text style={{ color: "#4F74D8", fontWeight: "600" }}>
+                  เข้าสู่ระบบ
+                </Text>
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
-    padding: spacing.lg,
-    gap: spacing.md,
-    minHeight: '100%',
+    flex: 1,
+  },
+  scroll: {
+    paddingHorizontal: 24,
+    paddingTop: 60,
+    paddingBottom: 40,
+  },
+  header: {
+    alignItems: "center",
+    marginBottom: 30,
   },
   title: {
-    color: '#fff',
     fontSize: 28,
-    fontWeight: '700',
+    fontWeight: "700",
+    color: "#2A2A2A",
   },
   subtitle: {
-    color: colors.muted,
     fontSize: 15,
+    marginTop: 6,
+    color: "#7A7A7A",
   },
-  form: {
-    backgroundColor: colors.surfaceDark,
-    borderRadius: radii.md,
-    padding: spacing.lg,
+  card: {
+    backgroundColor: "#fff",
+    padding: 22,
+    borderRadius: 20,
+    elevation: 6,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 3 },
   },
   label: {
-    color: colors.muted,
     fontSize: 14,
-    marginBottom: spacing.xs,
+    fontWeight: "600",
+    marginTop: 14,
+    color: "#333",
   },
   input: {
-    backgroundColor: '#0b1220',
-    borderRadius: radii.md,
-    padding: spacing.md,
-    color: colors.textPrimary,
-    fontSize: 16,
+    marginTop: 8,
+    backgroundColor: "#F4F6FA",
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    fontSize: 15,
+    color: "#333",
     borderWidth: 1,
-    borderColor: '#1f2937',
+    borderColor: "transparent",
+  },
+  inputError: {
+    borderColor: "#FF6B6B",
+    backgroundColor: "#FFF5F5",
+  },
+  errorText: {
+    color: "#FF6B6B",
+    fontSize: 12,
+    marginTop: 4,
+    marginLeft: 4,
+  },
+  buttonWrapper: {
+    marginTop: 26,
   },
   button: {
-    backgroundColor: colors.primary,
-    borderRadius: radii.md,
-    paddingVertical: 16,
-    alignItems: 'center',
+    paddingVertical: 14,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 50,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
+    fontWeight: "700",
     fontSize: 16,
-    fontWeight: '700',
   },
-  footer: {
-    color: colors.muted,
-    textAlign: 'center',
-  },
-  link: {
-    color: colors.accentBlue,
-    marginLeft: 6,
+  loginText: {
+    textAlign: "center",
+    color: "#777",
   },
 });
-
-export default RegisterScreen;
-

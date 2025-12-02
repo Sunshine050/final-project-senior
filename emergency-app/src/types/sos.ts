@@ -14,30 +14,56 @@ export enum EmergencyType {
 }
 
 export enum EmergencyStatus {
-  PENDING = 'PENDING',
-  ASSIGNED = 'ASSIGNED',
-  IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED',
+  PENDING = 'pending',
+  ASSIGNED = 'assigned',
+  EN_ROUTE = 'en_route',
+  ON_SCENE = 'on_scene',
+  TRANSPORTING = 'transporting',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled',
 }
 
 export interface EmergencyResponse {
   id: string;
+  callerName: string;
+  callerPhone: string;
   description: string;
-  grade: EmergencyGrade;
-  type: EmergencyType;
+  severity: "low" | "medium" | "high" | "critical";
   status: EmergencyStatus;
+  address: string;
+  location: {
+    type: string;
+    coordinates: [number, number]; // [longitude, latitude]
+  };
+  assignedHospitalId?: string;
+  assignedRescueTeamId?: string;
+  dispatcherId?: string;
+  patientCount: number;
+  emergencyType?: string;
+  notes?: string;
+  estimatedArrival?: string;
   createdAt: string;
   updatedAt: string;
-  location?: {
-    latitude: number;
-    longitude: number;
-  };
 }
 
 export interface CreateEmergencyRequest {
+  callerName: string;
+  callerPhone: string;
   description: string;
-  grade: EmergencyGrade;
-  type: EmergencyType;
+  severity: "low" | "medium" | "high" | "critical";
+  address: string;
+  location: {
+    latitude: number;
+    longitude: number;
+  };
+  emergencyType?: EmergencyType;
+  patientCount?: number;
+  patients?: Array<{
+    name?: string;
+    age?: number;
+    gender?: string;
+    condition?: string;
+  }>;
+  notes?: string;
 }
 

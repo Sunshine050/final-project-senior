@@ -1,9 +1,14 @@
 import axios, { AxiosError } from 'axios';
+import Constants from 'expo-constants';
 import type { Hospital, LongdoPoi, Organization, SosPayload } from '../types';
 
-// NOTE: ผูกตรง ๆ กับ IP เครื่องคุณ เพื่อให้มือถือยิงมาหา backend ได้แน่นอน
-// ถ้า IP เปลี่ยน ให้แก้ที่นี่แล้ว reload ใหม่
-const API_BASE_URL = 'http://192.168.1.3:3000';
+// Get API URL from environment or app.json
+const API_BASE_URL = 
+  Constants.expoConfig?.extra?.apiBaseUrl || 
+  process.env.EXPO_PUBLIC_API_URL || 
+  'http://192.168.1.3:3000';
+
+console.log('API Base URL:', API_BASE_URL);
 
 const LONGDO_MAP_KEY = '';
 
@@ -85,10 +90,31 @@ export const getEmergencyContacts = async () => {
 
 export const handleApiError = (error: unknown): never => {
   const axiosError = error as AxiosError<{ message?: string }>;
+  
+  // Log error for debugging
+  console.error('API Error:', {
+    message: axiosError.message,
+    response: axiosError.response?.data,
+    status: axiosError.response?.status,
+    url: axiosError.config?.url,
+  });
+
+  // Handle network errors
+  if (axiosError.code === 'ECONNREFUSED' || axiosError.message === 'Network Error') {
+    throw new Error('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต');
+  }
+
+  // Handle timeout
+  if (axiosError.code === 'ECONNABORTED') {
+    throw new Error('การเชื่อมต่อหมดเวลา กรุณาลองใหม่อีกครั้ง');
+  }
+
+  // Handle HTTP errors
   const message =
     axiosError.response?.data?.message ||
     axiosError.message ||
     'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง';
+  
   throw new Error(message);
 };
 

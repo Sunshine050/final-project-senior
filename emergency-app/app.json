@@ -32,7 +32,9 @@
       "permissions": [
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
-        "CALL_PHONE"
+        "CALL_PHONE",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ],
       "config": {
         "googleMaps": {
@@ -65,7 +67,11 @@
       "longdoMapKey": "bc7aa650e38fc00dc32b5902a0f07757",
       "router": {
         "origin": false
+      },
+      "eas": {
+        "projectId": "45e15d8b-f890-4ec2-9e51-17ef32fadd78"
       }
-    }
+    },
+    "owner": "sunshine050"
   }
 }

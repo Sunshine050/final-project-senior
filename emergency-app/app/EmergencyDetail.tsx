@@ -1,3 +1,4 @@
+// --- EMERGENCY DETAIL (Light / Minimal / Pastel Theme Upgrade) ---
 import React from "react";
 import {
   View,
@@ -18,41 +19,41 @@ const TYPE_CONFIG = {
     title: "โรงพยาบาล",
     icon: "favorite",
     color: "#FF6B9D",
-    gradient: ["#FFB6C1", "#FF69B4"] as const,
+    gradient: ["#FFC5D8", "#FF89AE"] as const,
     emoji: "💊",
     services: ["ฉุกเฉิน 24 ชม.", "ห้องฉุกเฉิน", "รถพยาบาล"],
     hotline: "1669",
-    lightBg: "#FFF0F5"
+    lightBg: "#FFF2F6",
   },
   police: {
     title: "สถานีตำรวจ",
     icon: "shield",
     color: "#6B9AFF",
-    gradient: ["#89CFF0", "#6495ED"] as const,
+    gradient: ["#D4E4FF", "#9ABAF8"] as const,
     emoji: "🛡️",
     services: ["เหตุฉุกเฉิน", "แจ้งความ", "ตรวจการณ์"],
     hotline: "191",
-    lightBg: "#E6F3FF"
+    lightBg: "#F1F7FF",
   },
   fire: {
     title: "หน่วยดับเพลิง",
     icon: "whatshot",
     color: "#FF9B6B",
-    gradient: ["#FFB88C", "#FF8C69"] as const,
+    gradient: ["#FFE1D1", "#FFB899"] as const,
     emoji: "🔥",
     services: ["ดับเพลิง", "กู้ภัย", "ช่วยเหลือ"],
     hotline: "199",
-    lightBg: "#FFF4E6"
+    lightBg: "#FFF4EC",
   },
   rescue: {
     title: "หน่วยกู้ภัย",
     icon: "healing",
-    color: "#6BFFB9",
-    gradient: ["#98FB98", "#90EE90"] as const,
+    color: "#4BCFA9",
+    gradient: ["#CFFFF1", "#A7F3D0"] as const,
     emoji: "🌿",
     services: ["กู้ชีพ", "รถพยาบาล", "ช่วยเหลือ"],
     hotline: "1554",
-    lightBg: "#F0FFF4"
+    lightBg: "#EEFFF7",
   },
 };
 
@@ -77,205 +78,200 @@ export default function EmergencyDetail() {
     : null;
 
   const getDistanceLevel = (dist: number) => {
-    if (dist < 1) return { text: "ใกล้มาก", color: "#90EE90", icon: "check-circle" };
-    if (dist < 3) return { text: "ใกล้", color: "#87CEEB", icon: "info" };
-    if (dist < 5) return { text: "ปานกลาง", color: "#FFD700", icon: "warning" };
-    return { text: "ไกล", color: "#FFB6C1", icon: "error" };
+    if (dist < 1) return { text: "ใกล้มาก", color: "#6FCF97", icon: "check-circle" };
+    if (dist < 3) return { text: "ใกล้", color: "#56CCF2", icon: "info" };
+    if (dist < 5) return { text: "ปานกลาง", color: "#F2C94C", icon: "warning" };
+    return { text: "ไกล", color: "#EB5757", icon: "error" };
   };
 
   const distanceLevel = distance ? getDistanceLevel(Number(distance)) : null;
 
   const handleCall = () => phone && Linking.openURL(`tel:${phone}`);
-
   const handleHotlineCall = () => Linking.openURL(`tel:${info.hotline}`);
-
   const handleDirections = () =>
     Linking.openURL(`https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`);
 
-  const styles = useThemedStyles((theme) =>
+  const styles = useThemedStyles(() =>
     StyleSheet.create({
       container: {
         flex: 1,
-        backgroundColor: "#FAFAFA",
+        backgroundColor: "#FCFCFD",
       },
       scrollContent: {
-        paddingBottom: 90,
+        paddingBottom: 120,
       },
       header: {
         paddingHorizontal: 20,
-        paddingTop: 12,
-        paddingBottom: 16,
+        paddingTop: 16,
+        paddingBottom: 32,
+        borderBottomLeftRadius: 28,
+        borderBottomRightRadius: 28,
+        overflow: "hidden",
       },
       backButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: "rgba(255, 255, 255, 0.4)",
+        width: 42,
+        height: 42,
+        borderRadius: 21,
+        backgroundColor: "rgba(255,255,255,0.5)",
         justifyContent: "center",
         alignItems: "center",
-        marginBottom: 20,
+        marginBottom: 18,
       },
       headerContent: {
         alignItems: "center",
-        gap: 12,
       },
       emoji: {
-        fontSize: 56,
+        fontSize: 58,
       },
       title: {
-        fontSize: 24,
+        marginTop: 10,
+        fontSize: 26,
         fontWeight: "800",
         color: "#fff",
         textAlign: "center",
-        textShadowColor: "rgba(0, 0, 0, 0.1)",
-        textShadowOffset: { width: 0, height: 1 },
-        textShadowRadius: 2,
       },
       typeBadge: {
-        backgroundColor: "rgba(255, 255, 255, 0.3)",
-        paddingHorizontal: 14,
+        marginTop: 8,
+        backgroundColor: "rgba(255,255,255,0.35)",
+        paddingHorizontal: 16,
         paddingVertical: 6,
-        borderRadius: 16,
+        borderRadius: 14,
       },
       typeText: {
         color: "#fff",
+        fontSize: 14,
         fontWeight: "600",
-        fontSize: 13,
       },
+
+      // Content
       content: {
         paddingHorizontal: 20,
-        paddingTop: 20,
+        paddingTop: 26,
       },
-      infoGrid: {
-        flexDirection: "row",
-        flexWrap: "wrap",
-        gap: 12,
-        marginBottom: 20,
-      },
+
+      // Cards
       infoCard: {
-        backgroundColor: "#FFFFFF",
-        borderRadius: 20,
-        padding: 18,
-        elevation: 3,
+        backgroundColor: "#fff",
+        borderRadius: 24,
+        padding: 20,
+        marginBottom: 14,
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
+        shadowOpacity: 0.06,
         shadowRadius: 8,
-        minWidth: "100%",
+        shadowOffset: { width: 0, height: 3 },
+        elevation: 3,
       },
       infoCardRow: {
         flexDirection: "row",
         alignItems: "center",
-        gap: 14,
+        gap: 16,
       },
       iconCircle: {
-        width: 52,
-        height: 52,
-        borderRadius: 26,
+        width: 54,
+        height: 54,
+        borderRadius: 27,
         justifyContent: "center",
         alignItems: "center",
+        backgroundColor: "#F5F5F5",
       },
-      infoText: {
-        flex: 1,
-      },
+
       infoLabel: {
-        fontSize: 12,
+        fontSize: 13,
         color: "#9E9E9E",
-        marginBottom: 4,
-        fontWeight: "500",
+        marginBottom: 3,
       },
       infoValue: {
-        fontSize: 15,
-        color: "#424242",
-        fontWeight: "600",
-        lineHeight: 20,
+        fontSize: 16,
+        color: "#333",
+        fontWeight: "700",
       },
       infoSubtext: {
         fontSize: 12,
         color: "#9E9E9E",
-        marginTop: 3,
+        marginTop: 2,
       },
+
       distanceBadge: {
+        marginTop: 6,
         flexDirection: "row",
         alignItems: "center",
-        gap: 4,
-        marginTop: 6,
+        gap: 6,
       },
       distanceBadgeText: {
         fontSize: 12,
         fontWeight: "600",
       },
+
+      // Service chips
       servicesRow: {
         flexDirection: "row",
         flexWrap: "wrap",
         gap: 8,
-        marginTop: 8,
+        marginTop: 6,
       },
       serviceChip: {
         backgroundColor: info.lightBg,
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: 14,
+        borderRadius: 16,
       },
       serviceText: {
         fontSize: 12,
-        color: info.color,
         fontWeight: "600",
+        color: info.color,
       },
+
+      // Hotline Card
       hotlineCard: {
-        backgroundColor: "#FFF9E6",
-        borderRadius: 18,
-        padding: 16,
+        marginTop: 8,
+        backgroundColor: "#FFF8E8",
+        borderRadius: 22,
+        padding: 18,
         flexDirection: "row",
         alignItems: "center",
         gap: 14,
-        borderLeftWidth: 4,
-        borderLeftColor: "#FFD700",
-        marginBottom: 20,
-        elevation: 2,
-        shadowColor: "#FFD700",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
+        borderLeftWidth: 5,
+        borderLeftColor: "#F2C94C",
+        shadowColor: "#F2C94C",
+        shadowOpacity: 0.15,
+        shadowOffset: { width: 0, height: 3 },
         shadowRadius: 6,
       },
       hotlineIcon: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
-        backgroundColor: "#FFD700",
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: "#F2C94C",
         justifyContent: "center",
         alignItems: "center",
       },
-      hotlineText: {
-        flex: 1,
-      },
       hotlineLabel: {
         fontSize: 12,
-        color: "#F57C00",
-        fontWeight: "600",
-        marginBottom: 3,
+        color: "#B77900",
+        fontWeight: "700",
       },
       hotlineNumber: {
         fontSize: 22,
-        color: "#F57C00",
         fontWeight: "800",
+        color: "#B77900",
       },
+
+      // Bottom buttons
       stickyButtonContainer: {
         position: "absolute",
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: "#FFFFFF",
         paddingHorizontal: 20,
-        paddingVertical: 12,
-        paddingBottom: 20,
+        paddingTop: 12,
+        paddingBottom: 26,
+        backgroundColor: "#ffffff",
         borderTopWidth: 1,
-        borderTopColor: "#F0F0F0",
-        elevation: 10,
+        borderTopColor: "#EEE",
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: -3 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
+        shadowOpacity: 0.08,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: -2 },
       },
       actionButtons: {
         flexDirection: "row",
@@ -283,48 +279,40 @@ export default function EmergencyDetail() {
       },
       actionButton: {
         flex: 1,
-        borderRadius: 18,
+        borderRadius: 20,
         overflow: "hidden",
-        elevation: 5,
-        shadowColor: info.color,
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
+        elevation: 3,
       },
       buttonGradient: {
-        paddingVertical: 16,
+        paddingVertical: 15,
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
         gap: 8,
       },
       buttonText: {
-        color: "#fff",
-        fontWeight: "700",
         fontSize: 16,
+        fontWeight: "700",
+        color: "#fff",
       },
     })
   );
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        
+        {/* HEADER */}
         <LinearGradient
           colors={info.gradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.header}
         >
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-            activeOpacity={0.7}
-          >
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()} activeOpacity={0.6}>
             <MaterialIcons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
+
           <View style={styles.headerContent}>
             <Text style={styles.emoji}>{info.emoji}</Text>
             <Text style={styles.title}>{name}</Text>
@@ -334,140 +322,144 @@ export default function EmergencyDetail() {
           </View>
         </LinearGradient>
 
-        <View style={styles.content}>
-          <View style={styles.infoGrid}>
-            {distance && (
-              <View style={styles.infoCard}>
-                <View style={styles.infoCardRow}>
-                  <View style={[styles.iconCircle, { backgroundColor: info.lightBg }]}>
-                    <MaterialIcons name="explore" size={28} color={info.color} />
-                  </View>
-                  <View style={styles.infoText}>
-                    <Text style={styles.infoLabel}>ระยะทาง</Text>
-                    <Text style={styles.infoValue}>
-                      {Number(distance).toFixed(1)} กม.
-                    </Text>
-                    {estimatedTime && (
-                      <Text style={styles.infoSubtext}>
-                        ⏱️ ประมาณ {estimatedTime} นาที
-                      </Text>
-                    )}
-                    {distanceLevel && (
-                      <View style={styles.distanceBadge}>
-                        <MaterialIcons name={distanceLevel.icon as any} size={16} color={distanceLevel.color} />
-                        <Text style={[styles.distanceBadgeText, { color: distanceLevel.color }]}>
-                          {distanceLevel.text}
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                </View>
-              </View>
-            )}
 
+        {/* MAIN CONTENT */}
+        <View style={styles.content}>
+
+          {/* DISTANCE */}
+          {distance && (
             <View style={styles.infoCard}>
               <View style={styles.infoCardRow}>
                 <View style={[styles.iconCircle, { backgroundColor: info.lightBg }]}>
-                  <MaterialIcons name="local-hospital" size={28} color={info.color} />
+                  <MaterialIcons name="explore" size={28} color={info.color} />
                 </View>
-                <View style={styles.infoText}>
-                  <Text style={styles.infoLabel}>บริการ</Text>
-                  <View style={styles.servicesRow}>
-                    {info.services.map((service, idx) => (
-                      <View key={idx} style={styles.serviceChip}>
-                        <Text style={styles.serviceText}>{service}</Text>
-                      </View>
-                    ))}
-                  </View>
+
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.infoLabel}>ระยะทาง</Text>
+
+                  <Text style={styles.infoValue}>{Number(distance).toFixed(1)} กม.</Text>
+
+                  {estimatedTime && (
+                    <Text style={styles.infoSubtext}>⏱️ ประมาณ {estimatedTime} นาที</Text>
+                  )}
+
+                  {distanceLevel && (
+                    <View style={styles.distanceBadge}>
+                      <MaterialIcons
+                        name={distanceLevel.icon as any}
+                        size={16}
+                        color={distanceLevel.color}
+                      />
+                      <Text style={[styles.distanceBadgeText, { color: distanceLevel.color }]}>
+                        {distanceLevel.text}
+                      </Text>
+                    </View>
+                  )}
                 </View>
               </View>
             </View>
+          )}
 
-            {address && (
-              <View style={styles.infoCard}>
-                <View style={styles.infoCardRow}>
-                  <View style={[styles.iconCircle, { backgroundColor: info.lightBg }]}>
-                    <MaterialIcons name="place" size={28} color={info.color} />
-                  </View>
-                  <View style={styles.infoText}>
-                    <Text style={styles.infoLabel}>ที่อยู่</Text>
-                    <Text style={styles.infoValue}>
-                      {address}
-                    </Text>
-                  </View>
+          {/* SERVICES */}
+          <View style={styles.infoCard}>
+            <View style={styles.infoCardRow}>
+              <View style={[styles.iconCircle, { backgroundColor: info.lightBg }]}>
+                <MaterialIcons name="local-hospital" size={28} color={info.color} />
+              </View>
+
+              <View style={{ flex: 1 }}>
+                <Text style={styles.infoLabel}>บริการ</Text>
+                <View style={styles.servicesRow}>
+                  {info.services.map((service, i) => (
+                    <View key={i} style={styles.serviceChip}>
+                      <Text style={styles.serviceText}>{service}</Text>
+                    </View>
+                  ))}
                 </View>
               </View>
-            )}
-
-            {phone && (
-              <View style={styles.infoCard}>
-                <View style={styles.infoCardRow}>
-                  <View style={[styles.iconCircle, { backgroundColor: info.lightBg }]}>
-                    <MaterialIcons name="phone" size={28} color={info.color} />
-                  </View>
-                  <View style={styles.infoText}>
-                    <Text style={styles.infoLabel}>เบอร์โทรศัพท์</Text>
-                    <Text style={styles.infoValue}>{phone}</Text>
-                  </View>
-                </View>
-              </View>
-            )}
+            </View>
           </View>
 
-          <TouchableOpacity
-            style={styles.hotlineCard}
-            onPress={handleHotlineCall}
-            activeOpacity={0.7}
-          >
+          {/* ADDRESS */}
+          {address && (
+            <View style={styles.infoCard}>
+              <View style={styles.infoCardRow}>
+                <View style={[styles.iconCircle, { backgroundColor: info.lightBg }]}>
+                  <MaterialIcons name="place" size={28} color={info.color} />
+                </View>
+
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.infoLabel}>ที่อยู่</Text>
+                  <Text style={styles.infoValue}>{address}</Text>
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* PHONE */}
+          {phone && (
+            <View style={styles.infoCard}>
+              <View style={styles.infoCardRow}>
+                <View style={[styles.iconCircle, { backgroundColor: info.lightBg }]}>
+                  <MaterialIcons name="phone" size={28} color={info.color} />
+                </View>
+
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.infoLabel}>เบอร์โทรศัพท์</Text>
+                  <Text style={styles.infoValue}>{phone}</Text>
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* HOTLINE */}
+          <TouchableOpacity style={styles.hotlineCard} onPress={handleHotlineCall} activeOpacity={0.8}>
             <View style={styles.hotlineIcon}>
               <MaterialIcons name="phone-in-talk" size={26} color="#fff" />
             </View>
-            <View style={styles.hotlineText}>
+
+            <View style={{ flex: 1 }}>
               <Text style={styles.hotlineLabel}>สายด่วนฉุกเฉิน</Text>
               <Text style={styles.hotlineNumber}>{info.hotline}</Text>
             </View>
-            <MaterialIcons name="chevron-right" size={26} color="#F57C00" />
+
+            <MaterialIcons name="chevron-right" size={26} color="#B77900" />
           </TouchableOpacity>
         </View>
       </ScrollView>
 
+      {/* BOTTOM BUTTONS */}
       <View style={styles.stickyButtonContainer}>
         <View style={styles.actionButtons}>
+          
           {phone && (
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={handleCall}
-              activeOpacity={0.8}
-            >
+            <TouchableOpacity style={styles.actionButton} onPress={handleCall}>
               <LinearGradient
                 colors={info.gradient}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.buttonGradient}
               >
-                <MaterialIcons name="call" size={24} color="#fff" />
+                <MaterialIcons name="call" size={22} color="#fff" />
                 <Text style={styles.buttonText}>โทรด่วน</Text>
               </LinearGradient>
             </TouchableOpacity>
           )}
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={handleDirections}
-            activeOpacity={0.8}
-          >
+
+          <TouchableOpacity style={styles.actionButton} onPress={handleDirections}>
             <LinearGradient
               colors={["#B8A4F5", "#9B7FD9"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.buttonGradient}
             >
-              <MaterialIcons name="directions" size={24} color="#fff" />
+              <MaterialIcons name="directions" size={22} color="#fff" />
               <Text style={styles.buttonText}>นำทาง</Text>
             </LinearGradient>
           </TouchableOpacity>
+
         </View>
       </View>
     </SafeAreaView>
   );
 }
-

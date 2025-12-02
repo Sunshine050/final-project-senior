@@ -15,6 +15,12 @@ export default function RequestStatus({ emergency, onCancel, onUpdate }: Request
   const [currentEmergency, setCurrentEmergency] = useState(emergency);
   const [loading, setLoading] = useState(false);
 
+  // Debug: Log emergency data
+  React.useEffect(() => {
+    console.log('Emergency data:', JSON.stringify(emergency, null, 2));
+    console.log('Status:', emergency.status, 'Type:', typeof emergency.status);
+  }, [emergency]);
+
   useEffect(() => {
     const pollStatus = async () => {
       if (currentEmergency.status === EmergencyStatus.COMPLETED || 
@@ -36,31 +42,53 @@ export default function RequestStatus({ emergency, onCancel, onUpdate }: Request
   }, [currentEmergency.id]);
 
   const getStatusInfo = () => {
-    switch (currentEmergency.status) {
+    // Handle both string and enum values
+    const status = currentEmergency.status?.toLowerCase() || '';
+    
+    switch (status) {
+      case 'pending':
       case EmergencyStatus.PENDING:
         return {
           text: 'รอการตอบรับ',
           color: '#F59E0B',
           icon: 'schedule',
         };
+      case 'assigned':
       case EmergencyStatus.ASSIGNED:
         return {
           text: 'ได้รับมอบหมาย',
           color: '#3B82F6',
           icon: 'check-circle',
         };
-      case EmergencyStatus.IN_PROGRESS:
+      case 'en_route':
+      case EmergencyStatus.EN_ROUTE:
         return {
-          text: 'กำลังดำเนินการ',
+          text: 'กำลังเดินทาง',
+          color: '#3B82F6',
+          icon: 'directions-car',
+        };
+      case 'on_scene':
+      case EmergencyStatus.ON_SCENE:
+        return {
+          text: 'ถึงที่เกิดเหตุ',
+          color: '#10B981',
+          icon: 'location-on',
+        };
+      case 'transporting':
+      case EmergencyStatus.TRANSPORTING:
+        return {
+          text: 'กำลังส่งต่อ',
           color: '#10B981',
           icon: 'local-hospital',
         };
+      case 'completed':
       case EmergencyStatus.COMPLETED:
         return {
           text: 'เสร็จสิ้น',
           color: '#10B981',
           icon: 'check-circle',
         };
+      case 'cancelled':
       case EmergencyStatus.CANCELLED:
         return {
           text: 'ยกเลิก',
@@ -68,6 +96,7 @@ export default function RequestStatus({ emergency, onCancel, onUpdate }: Request
           icon: 'cancel',
         };
       default:
+        console.warn('Unknown status:', currentEmergency.status);
         return {
           text: 'ไม่ทราบสถานะ',
           color: '#6B7280',

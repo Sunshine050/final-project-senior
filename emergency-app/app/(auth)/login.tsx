@@ -11,10 +11,21 @@ import {
   View,
 } from "react-native";
 import { Link, useRouter } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { useAuth } from "../../hooks/useAuth";
-import { colors, radii, spacing } from "../../constants/theme";
+
+const colors = {
+  primary: "#1A73E8",
+  primaryLight: "#4D9AFF",
+  accentGreen: "#4CAF50",
+  background: "#F7FAFC",
+  card: "#FFFFFF",
+  border: "#E2E8F0",
+  text: "#1A1A1A",
+  muted: "#6B7280",
+};
 
 const LoginScreen = () => {
   const router = useRouter();
@@ -30,20 +41,22 @@ const LoginScreen = () => {
       return;
     }
     try {
+      console.log("Attempting login with email:", email);
       await loginWithEmail({ email, password });
-      router.replace("/(tabs)");
+      console.log("Login successful, navigating...");
+      router.replace("/(main)/home" as any);
     } catch (error) {
-      Alert.alert("เข้าสู่ระบบไม่สำเร็จ", (error as Error).message);
+      console.error("Login error:", error);
+      const errorMessage =
+        (error as Error).message || "ไม่สามารถเข้าสู่ระบบได้";
+      Alert.alert("เข้าสู่ระบบไม่สำเร็จ", errorMessage);
     }
   };
 
   const handleOAuth = async (provider: "google" | "facebook") => {
     try {
-      if (provider === "google") {
-        await loginWithGoogle();
-      } else {
-        await loginWithFacebook();
-      }
+      if (provider === "google") await loginWithGoogle();
+      else await loginWithFacebook();
       router.replace("/(tabs)");
     } catch (error) {
       Alert.alert("ไม่สามารถเข้าสู่ระบบได้", (error as Error).message);
@@ -52,64 +65,103 @@ const LoginScreen = () => {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: colors.backgroundDark }}
+      style={{ flex: 1, backgroundColor: colors.background }}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
-        bounces={false}
+        showsVerticalScrollIndicator={false}
       >
+        {/* HEADER */}
         <View style={styles.header}>
           <View style={styles.iconWrapper}>
-            <MaterialCommunityIcons name="heart-pulse" size={34} color="#fff" />
+            <LinearGradient
+              colors={[colors.primary, colors.accentGreen]}
+              style={styles.iconGradient}
+            >
+              <MaterialCommunityIcons
+                name="hospital-box"
+                size={38}
+                color="#fff"
+              />
+            </LinearGradient>
           </View>
+
           <Text style={styles.title}>Emergency SOS</Text>
           <Text style={styles.subtitle}>
-            ระบบแจ้งเหตุฉุกเฉิน ครอบคลุมทั่วไทย
+            ระบบแจ้งเหตุฉุกเฉินสำหรับโรงพยาบาล
           </Text>
         </View>
 
+        {/* FORM */}
         <View style={styles.form}>
-          <Text style={styles.label}>อีเมล</Text>
-          <TextInput
-            style={styles.input}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={setEmail}
-            placeholder="example@email.com"
-            placeholderTextColor={colors.muted}
-          />
+          <View style={styles.inputGroup}>
+            <MaterialCommunityIcons
+              name="email-outline"
+              size={20}
+              color={colors.muted}
+            />
+            <TextInput
+              style={styles.input}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              placeholder="อีเมล"
+              placeholderTextColor={colors.muted}
+              value={email}
+              onChangeText={setEmail}
+            />
+          </View>
 
-          <Text style={[styles.label, { marginTop: spacing.md }]}>
-            รหัสผ่าน
+          <View style={styles.inputGroup}>
+            <MaterialCommunityIcons
+              name="lock-outline"
+              size={20}
+              color={colors.muted}
+            />
+            <TextInput
+              style={styles.input}
+              secureTextEntry
+              placeholder="รหัสผ่าน"
+              placeholderTextColor={colors.muted}
+              value={password}
+              onChangeText={setPassword}
+            />
+          </View>
+
+          <Text style={styles.helper}>
+            * ข้อมูลของท่านจะถูกเก็บรักษาอย่างปลอดภัย
           </Text>
-          <TextInput
-            style={styles.input}
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-            placeholder="••••••••"
-            placeholderTextColor={colors.muted}
-          />
 
-          <Text style={styles.helper}>* ข้อมูลของคุณจะถูกเก็บอย่างปลอดภัย</Text>
-
-          <View style={{ marginTop: spacing.lg }}>
-            <Pressable
-              style={styles.button}
-              onPress={handleLogin}
-              disabled={isSubmitting}
+          <Pressable
+            style={({ pressed }) => [
+              styles.button,
+              pressed && styles.buttonPressed,
+            ]}
+            onPress={handleLogin}
+          >
+            <LinearGradient
+              colors={[colors.primary, colors.primaryLight]}
+              style={styles.buttonGradient}
             >
               <Text style={styles.buttonText}>
-                {isSubmitting ? "กำลังตรวจสอบ..." : "เข้าสู่ระบบ"}
+                {isSubmitting ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
               </Text>
-            </Pressable>
-          </View>
+            </LinearGradient>
+          </Pressable>
+
+          <Pressable
+            style={{ alignSelf: "flex-end" }}
+            onPress={() =>
+              Alert.alert("ลืมรหัสผ่าน", "โปรดติดต่อเจ้าหน้าที่เพื่อรีเซ็ต")
+            }
+          >
+            <Text style={styles.forgotText}>ลืมรหัสผ่าน?</Text>
+          </Pressable>
         </View>
 
-        <View style={styles.divider}>
+        {/* SOCIAL */}
+        <View style={styles.dividerRow}>
           <View style={styles.line} />
           <Text style={styles.dividerText}>หรือ</Text>
           <View style={styles.line} />
@@ -117,17 +169,18 @@ const LoginScreen = () => {
 
         <View style={styles.socialRow}>
           <Pressable
-            style={[styles.socialButton, { backgroundColor: "#ffffff11" }]}
+            style={styles.socialButton}
             onPress={() => handleOAuth("google")}
           >
-            <MaterialCommunityIcons name="google" size={20} color="#fff" />
-            <Text style={styles.socialText}>ใช้บัญชี Google</Text>
+            <MaterialCommunityIcons name="google" size={20} color="#DB4437" />
+            <Text style={styles.socialText}>Google</Text>
           </Pressable>
+
           <Pressable
-            style={[styles.socialButton, { backgroundColor: "#1877f233" }]}
+            style={styles.socialButton}
             onPress={() => handleOAuth("facebook")}
           >
-            <MaterialCommunityIcons name="facebook" size={20} color="#fff" />
+            <MaterialCommunityIcons name="facebook" size={20} color="#1877F2" />
             <Text style={styles.socialText}>Facebook</Text>
           </Pressable>
         </View>
@@ -145,103 +198,141 @@ const LoginScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: spacing.lg,
+    padding: 24,
     minHeight: "100%",
-    gap: spacing.lg,
+    justifyContent: "center",
   },
   header: {
     alignItems: "center",
-    gap: spacing.sm,
+    marginBottom: 20,
   },
   iconWrapper: {
-    width: 70,
-    height: 70,
-    borderRadius: radii.lg,
-    backgroundColor: colors.primary,
+    width: 90,
+    height: 90,
+    borderRadius: 20,
+    backgroundColor: "#fff",
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+  },
+  iconGradient: {
+    flex: 1,
+    borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
   },
   title: {
-    color: "#fff",
-    fontSize: 28,
-    fontWeight: "700",
+    fontSize: 30,
+    color: colors.text,
+    fontWeight: "800",
+    marginTop: 16,
   },
   subtitle: {
-    color: colors.muted,
     fontSize: 15,
+    color: colors.muted,
+    marginTop: 6,
   },
   form: {
-    backgroundColor: colors.surfaceDark,
-    borderRadius: radii.md,
-    padding: spacing.lg,
+    backgroundColor: colors.card,
+    borderRadius: 20,
+    padding: 22,
+    gap: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 4,
+    marginTop: 10,
   },
-  label: {
-    color: colors.muted,
-    fontSize: 14,
-    marginBottom: spacing.xs,
+  inputGroup: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F1F5F9",
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
+    gap: 10,
   },
   input: {
-    backgroundColor: "#0b1220",
-    borderRadius: radii.md,
-    padding: spacing.md,
-    color: colors.textPrimary,
+    flex: 1,
     fontSize: 16,
-    borderWidth: 1,
-    borderColor: "#1f2937",
+    color: colors.text,
   },
   helper: {
     color: colors.muted,
     fontSize: 12,
-    marginTop: spacing.sm,
+    textAlign: "center",
   },
   button: {
-    textAlign: "center",
-    backgroundColor: colors.primary,
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+  buttonGradient: {
     paddingVertical: 16,
-    borderRadius: radii.md,
+    alignItems: "center",
   },
   buttonText: {
-    color: "#fff",
+    color: "#FFF",
     fontSize: 16,
     fontWeight: "700",
   },
-  divider: {
+  buttonPressed: {
+    opacity: 0.9,
+  },
+  forgotText: {
+    color: colors.primary,
+    fontWeight: "600",
+    fontSize: 14,
+    marginTop: 4,
+  },
+  dividerRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.sm,
+    marginVertical: 20,
+    gap: 10,
   },
   line: {
     flex: 1,
     height: 1,
-    backgroundColor: "#1f2a37",
+    backgroundColor: colors.border,
   },
   dividerText: {
     color: colors.muted,
   },
   socialRow: {
     flexDirection: "row",
-    gap: spacing.sm,
+    gap: 12,
   },
   socialButton: {
     flex: 1,
-    borderRadius: radii.md,
-    paddingVertical: 14,
     flexDirection: "row",
-    gap: spacing.sm,
     alignItems: "center",
+    gap: 10,
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    paddingVertical: 14,
     justifyContent: "center",
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   socialText: {
-    color: "#fff",
-    fontWeight: "600",
+    color: colors.text,
+    fontWeight: "700",
   },
   footer: {
-    color: colors.muted,
     textAlign: "center",
+    color: colors.muted,
+    marginTop: 20,
   },
   link: {
-    color: colors.accentBlue,
+    color: colors.primary,
     marginLeft: 6,
+    fontWeight: "700",
   },
 });
 
