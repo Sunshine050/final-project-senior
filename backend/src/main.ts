@@ -3,9 +3,15 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
+import { Request, Response, NextFunction } from 'express'; // ✅ เพิ่ม type ที่นี่
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // --- Ignore Chrome DevTools & Debugger requests ---
+  app.use('/.well-known', (req: Request, res: Response, next: NextFunction) => {
+    return res.status(204).send();
+  });
 
   // Enable CORS
   app.enableCors();
@@ -45,5 +51,5 @@ async function bootstrap() {
   console.log(`Application is running on: http://localhost:${port}`);
   console.log(`Swagger docs: http://localhost:${port}/api`);
 }
-bootstrap();
 
+bootstrap();

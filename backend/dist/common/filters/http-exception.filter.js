@@ -17,6 +17,13 @@ let AllExceptionsFilter = AllExceptionsFilter_1 = class AllExceptionsFilter {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse();
         const request = ctx.getRequest();
+        const ignoredRoutes = ['/login', '/register', '/dashboard'];
+        if (exception instanceof common_1.HttpException &&
+            exception.getStatus() === common_1.HttpStatus.NOT_FOUND &&
+            ignoredRoutes.some((route) => request.url === route || request.url.startsWith(route + '/'))) {
+            response.status(common_1.HttpStatus.NO_CONTENT).send();
+            return;
+        }
         let status = common_1.HttpStatus.INTERNAL_SERVER_ERROR;
         let message = 'Internal server error';
         let error = 'Internal Server Error';

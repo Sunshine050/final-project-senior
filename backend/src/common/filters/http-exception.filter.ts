@@ -23,6 +23,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
+    // Ignore common frontend routes that don't exist in backend
+    const ignoredRoutes = ['/login', '/register', '/dashboard'];
+    if (
+      exception instanceof HttpException &&
+      exception.getStatus() === HttpStatus.NOT_FOUND &&
+      ignoredRoutes.some((route) => request.url === route || request.url.startsWith(route + '/'))
+    ) {
+      // Return 204 No Content for ignored routes (common frontend routes)
+      response.status(HttpStatus.NO_CONTENT).send();
+      return;
+    }
+
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Internal server error';
     let error = 'Internal Server Error';

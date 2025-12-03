@@ -1,16 +1,18 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsEnum, IsNumber, Min, IsMongoId } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import { EmergencyStatus, EmergencySeverity } from '../../../common/enums';
 
 export class QueryEmergencyDto {
   @ApiPropertyOptional({ enum: EmergencyStatus, description: 'Filter by status' })
   @IsOptional()
+  @Transform(({ value }) => (value === '' ? undefined : value))
   @IsEnum(EmergencyStatus)
   status?: EmergencyStatus;
 
   @ApiPropertyOptional({ enum: EmergencySeverity, description: 'Filter by severity' })
   @IsOptional()
+  @Transform(({ value }) => (value === '' ? undefined : value))
   @IsEnum(EmergencySeverity)
   severity?: EmergencySeverity;
 

@@ -24,12 +24,14 @@ exports.QueryEmergencyDto = QueryEmergencyDto;
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ enum: enums_1.EmergencyStatus, description: 'Filter by status' }),
     (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Transform)(({ value }) => (value === '' ? undefined : value)),
     (0, class_validator_1.IsEnum)(enums_1.EmergencyStatus),
     __metadata("design:type", String)
 ], QueryEmergencyDto.prototype, "status", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ enum: enums_1.EmergencySeverity, description: 'Filter by severity' }),
     (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Transform)(({ value }) => (value === '' ? undefined : value)),
     (0, class_validator_1.IsEnum)(enums_1.EmergencySeverity),
     __metadata("design:type", String)
 ], QueryEmergencyDto.prototype, "severity", void 0);

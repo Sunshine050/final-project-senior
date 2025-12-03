@@ -1,0 +1,1092 @@
+{
+	"info": {
+		"_postman_id": "emergency-care-api-collection",
+		"name": "Emergency Care API - Complete Collection",
+		"description": "Complete API collection for Emergency Care System (EMS 1669)\n\n**Setup Instructions:**\n1. Import this collection into Postman\n2. Set base_url variable to your backend URL (default: http://localhost:3000)\n3. Run requests in order: Auth → Organizations → Users → SOS → etc.\n4. Token will be auto-saved after login and used in subsequent requests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "🔐 Authentication",
+			"item": [
+				{
+					"name": "Register - Dispatcher",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"access_token\", jsonData.accessToken);",
+									"    pm.collectionVariables.set(\"user_id\", jsonData.user.id);",
+									"    pm.collectionVariables.set(\"user_role\", jsonData.user.role);",
+									"    pm.collectionVariables.set(\"organization_id\", jsonData.user.organizationId || \"\");",
+									"    console.log(\"✅ Token saved:\", jsonData.accessToken);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"dispatcher@example.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"สมชาย\",\n  \"lastName\": \"เจ้าหน้าที่\",\n  \"role\": \"dispatcher\",\n  \"phone\": \"+66812345678\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register"]
+						},
+						"description": "สร้างบัญชี Dispatcher (เจ้าหน้าที่ 1669)"
+					}
+				},
+				{
+					"name": "Register - Hospital Staff",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"access_token\", jsonData.accessToken);",
+									"    pm.collectionVariables.set(\"user_id\", jsonData.user.id);",
+									"    pm.collectionVariables.set(\"user_role\", jsonData.user.role);",
+									"    pm.collectionVariables.set(\"organization_id\", jsonData.user.organizationId || \"\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"hospital@example.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"สมหญิง\",\n  \"lastName\": \"พยาบาล\",\n  \"role\": \"hospital_staff\",\n  \"phone\": \"+66823456789\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Register - Rescue Team",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"access_token\", jsonData.accessToken);",
+									"    pm.collectionVariables.set(\"user_id\", jsonData.user.id);",
+									"    pm.collectionVariables.set(\"user_role\", jsonData.user.role);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"rescue@example.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"สมศักดิ์\",\n  \"lastName\": \"กู้ชีพ\",\n  \"role\": \"rescue_team\",\n  \"phone\": \"+66834567890\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Register - Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"access_token\", jsonData.accessToken);",
+									"    pm.collectionVariables.set(\"user_id\", jsonData.user.id);",
+									"    pm.collectionVariables.set(\"user_role\", jsonData.user.role);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"ผู้ดูแล\",\n  \"lastName\": \"ระบบ\",\n  \"role\": \"admin\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"access_token\", jsonData.accessToken);",
+									"    pm.collectionVariables.set(\"user_id\", jsonData.user.id);",
+									"    pm.collectionVariables.set(\"user_role\", jsonData.user.role);",
+									"    pm.collectionVariables.set(\"organization_id\", jsonData.user.organizationId || \"\");",
+									"    console.log(\"✅ Login successful! Token saved.\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"dispatcher@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Login และ auto-save token"
+					}
+				},
+				{
+					"name": "Get Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/profile",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "profile"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🏢 Organizations",
+			"item": [
+				{
+					"name": "Create - Dispatch Center (1669)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"ศูนย์สั่งการ 1669 กรุงเทพมหานคร\",\n  \"type\": \"dispatch_center\",\n  \"address\": \"123 ถนนราชดำเนิน กรุงเทพมหานคร 10200\",\n  \"phone\": \"1669\",\n  \"email\": \"dispatch@1669.go.th\",\n  \"location\": {\n    \"type\": \"Point\",\n    \"coordinates\": [100.5018, 13.7563]\n  },\n  \"isActive\": true,\n  \"capacity\": 50,\n  \"availableCapacity\": 30\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/organizations",
+							"host": ["{{base_url}}"],
+							"path": ["organizations"]
+						},
+						"description": "สร้างศูนย์สั่งการ 1669 (ต้องเป็น Admin)"
+					}
+				},
+				{
+					"name": "Create - Hospital",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"hospital_id\", jsonData.id);",
+									"    console.log(\"✅ Hospital ID saved:\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"โรงพยาบาลจุฬาลงกรณ์\",\n  \"type\": \"hospital\",\n  \"address\": \"1873 ถนนพระราม 4 แขวงปทุมวัน กรุงเทพมหานคร 10330\",\n  \"phone\": \"02-256-4000\",\n  \"email\": \"info@chula.go.th\",\n  \"location\": {\n    \"type\": \"Point\",\n    \"coordinates\": [100.5300, 13.7380]\n  },\n  \"isActive\": true,\n  \"capacity\": 1500,\n  \"availableCapacity\": 1200,\n  \"services\": [\"Emergency\", \"ICU\", \"Surgery\", \"Cardiology\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/organizations",
+							"host": ["{{base_url}}"],
+							"path": ["organizations"]
+						}
+					}
+				},
+				{
+					"name": "Create - Rescue Team",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"rescue_team_id\", jsonData.id);",
+									"    console.log(\"✅ Rescue Team ID saved:\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"ทีมกู้ชีพกรุงเทพ 1\",\n  \"type\": \"rescue_team\",\n  \"address\": \"456 ถนนสุขุมวิท กรุงเทพมหานคร 10110\",\n  \"phone\": \"02-123-4567\",\n  \"email\": \"rescue1@example.com\",\n  \"location\": {\n    \"type\": \"Point\",\n    \"coordinates\": [100.5612, 13.7300]\n  },\n  \"isActive\": true,\n  \"capacity\": 5,\n  \"availableCapacity\": 3\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/organizations",
+							"host": ["{{base_url}}"],
+							"path": ["organizations"]
+						}
+					}
+				},
+				{
+					"name": "Get All Organizations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/organizations",
+							"host": ["{{base_url}}"],
+							"path": ["organizations"]
+						}
+					}
+				},
+				{
+					"name": "Get Organization by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/organizations/:id",
+							"host": ["{{base_url}}"],
+							"path": ["organizations", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{hospital_id}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Organization",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"โรงพยาบาลจุฬาลงกรณ์ (อัปเดต)\",\n  \"availableCapacity\": 1100\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/organizations/:id",
+							"host": ["{{base_url}}"],
+							"path": ["organizations", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{hospital_id}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Organization",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/organizations/:id",
+							"host": ["{{base_url}}"],
+							"path": ["organizations", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{hospital_id}}"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🏥 Hospitals",
+			"item": [
+				{
+					"name": "Get All Hospitals",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/hospitals",
+							"host": ["{{base_url}}"],
+							"path": ["hospitals"]
+						}
+					}
+				},
+				{
+					"name": "Get Nearby Hospitals",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/hospitals/nearby?longitude=100.5018&latitude=13.7563&maxDistance=10000&limit=10",
+							"host": ["{{base_url}}"],
+							"path": ["hospitals", "nearby"],
+							"query": [
+								{
+									"key": "longitude",
+									"value": "100.5018"
+								},
+								{
+									"key": "latitude",
+									"value": "13.7563"
+								},
+								{
+									"key": "maxDistance",
+									"value": "10000",
+									"description": "in meters"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Hospital by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/hospitals/:id",
+							"host": ["{{base_url}}"],
+							"path": ["hospitals", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{hospital_id}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Bed Availability",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"availableBeds\": 1150\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/hospitals/:id/beds",
+							"host": ["{{base_url}}"],
+							"path": ["hospitals", ":id", "beds"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{hospital_id}}"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🚑 Rescue Teams",
+			"item": [
+				{
+					"name": "Get All Rescue Teams",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/rescue-teams",
+							"host": ["{{base_url}}"],
+							"path": ["rescue-teams"]
+						}
+					}
+				},
+				{
+					"name": "Get Available Rescue Teams",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/rescue-teams/available",
+							"host": ["{{base_url}}"],
+							"path": ["rescue-teams", "available"]
+						}
+					}
+				},
+				{
+					"name": "Get Rescue Team by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/rescue-teams/:id",
+							"host": ["{{base_url}}"],
+							"path": ["rescue-teams", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{rescue_team_id}}"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🚨 SOS / Emergency",
+			"item": [
+				{
+					"name": "Create Emergency - Patient (Critical)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"emergency_id\", jsonData.id);",
+									"    console.log(\"✅ Emergency ID saved:\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"callerName\": \"สมชาย ใจดี\",\n  \"callerPhone\": \"+66812345678\",\n  \"description\": \"รถชนกัน มีผู้บาดเจ็บสาหัส 2 คน\",\n  \"severity\": \"critical\",\n  \"address\": \"ถนนพหลโยธิน ใกล้แยกเกษตร กรุงเทพมหานคร\",\n  \"location\": {\n    \"longitude\": 100.5700,\n    \"latitude\": 13.8500\n  },\n  \"patientCount\": 2,\n  \"patients\": [\n    {\n      \"name\": \"นายทดสอบ หนึ่ง\",\n      \"age\": 35,\n      \"gender\": \"male\",\n      \"condition\": \"หมดสติ มีเลือดออกที่ศีรษะ\"\n    },\n    {\n      \"name\": \"นางทดสอบ สอง\",\n      \"age\": 28,\n      \"gender\": \"female\",\n      \"condition\": \"แขนหัก หมดสติ\"\n    }\n  ],\n  \"emergencyType\": \"Traffic Accident\",\n  \"notes\": \"รถชนกันอย่างแรง ต้องส่งหน่วยกู้ชีพด่วน\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/sos",
+							"host": ["{{base_url}}"],
+							"path": ["sos"]
+						},
+						"description": "สร้างเคสฉุกเฉิน - ผู้ป่วยวิกฤต (Grade 4)"
+					}
+				},
+				{
+					"name": "Create Emergency - Not Patient (High)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"callerName\": \"สมหญิง รักดี\",\n  \"callerPhone\": \"+66823456789\",\n  \"description\": \"เห็นคนจมน้ำในสระว่ายน้ำ\",\n  \"severity\": \"high\",\n  \"address\": \"สระว่ายน้ำสวนลุมพินี กรุงเทพมหานคร\",\n  \"location\": {\n    \"longitude\": 100.5444,\n    \"latitude\": 13.7300\n  },\n  \"patientCount\": 1,\n  \"patients\": [\n    {\n      \"name\": \"ไม่ทราบชื่อ\",\n      \"age\": 25,\n      \"gender\": \"male\",\n      \"condition\": \"จมน้ำ หมดสติ\"\n    }\n  ],\n  \"emergencyType\": \"Drowning\",\n  \"notes\": \"เห็นคนจมน้ำ ต้องรีบช่วยเหลือ\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/sos",
+							"host": ["{{base_url}}"],
+							"path": ["sos"]
+						}
+					}
+				},
+				{
+					"name": "Get All Emergencies (Admin/Dispatcher)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/sos/all?status=pending&severity=critical&page=1&limit=20",
+							"host": ["{{base_url}}"],
+							"path": ["sos", "all"],
+							"query": [
+								{
+									"key": "status",
+									"value": "pending",
+									"description": "pending, assigned, en_route, on_scene, transporting, completed, cancelled"
+								},
+								{
+									"key": "severity",
+									"value": "critical",
+									"description": "low, medium, high, critical"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Active Emergencies (Hospital Dashboard)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/sos/dashboard/active-emergencies",
+							"host": ["{{base_url}}"],
+							"path": ["sos", "dashboard", "active-emergencies"]
+						}
+					}
+				},
+				{
+					"name": "Get Assigned Cases (Rescue Team)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/sos/rescue/assigned-cases",
+							"host": ["{{base_url}}"],
+							"path": ["sos", "rescue", "assigned-cases"]
+						}
+					}
+				},
+				{
+					"name": "Get Emergency by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/sos/:id",
+							"host": ["{{base_url}}"],
+							"path": ["sos", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{emergency_id}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Assign Emergency to Hospital & Rescue",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"hospitalId\": \"{{hospital_id}}\",\n  \"rescueTeamId\": \"{{rescue_team_id}}\",\n  \"notes\": \"ส่งทีมกู้ชีพไปรับผู้ป่วยและนำส่งโรงพยาบาล\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/sos/:id/assign",
+							"host": ["{{base_url}}"],
+							"path": ["sos", ":id", "assign"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{emergency_id}}"
+								}
+							]
+						},
+						"description": "Assign emergency (ต้องเป็น Admin, Dispatcher, หรือ Hospital Staff)"
+					}
+				},
+				{
+					"name": "Update Status - En Route",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"en_route\",\n  \"notes\": \"ทีมกู้ชีพออกเดินทางแล้ว\",\n  \"estimatedArrival\": \"2024-12-20T10:30:00Z\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/sos/:id/status",
+							"host": ["{{base_url}}"],
+							"path": ["sos", ":id", "status"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{emergency_id}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Status - On Scene",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"on_scene\",\n  \"notes\": \"ทีมกู้ชีพถึงที่เกิดเหตุแล้ว กำลังให้การช่วยเหลือ\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/sos/:id/status",
+							"host": ["{{base_url}}"],
+							"path": ["sos", ":id", "status"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{emergency_id}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Status - Transporting",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"transporting\",\n  \"notes\": \"กำลังนำส่งผู้ป่วยไปโรงพยาบาล\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/sos/:id/status",
+							"host": ["{{base_url}}"],
+							"path": ["sos", ":id", "status"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{emergency_id}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Status - Completed",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"completed\",\n  \"notes\": \"ส่งผู้ป่วยถึงโรงพยาบาลเรียบร้อย\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/sos/:id/status",
+							"host": ["{{base_url}}"],
+							"path": ["sos", ":id", "status"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{emergency_id}}"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🔔 Notifications",
+			"item": [
+				{
+					"name": "Get Notifications",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/notifications?limit=50",
+							"host": ["{{base_url}}"],
+							"path": ["notifications"],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Mark Notification as Read",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/notifications/:id/read",
+							"host": ["{{base_url}}"],
+							"path": ["notifications", ":id", "read"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "notification_id_here"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Mark All Notifications as Read",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/notifications/mark-all-read",
+							"host": ["{{base_url}}"],
+							"path": ["notifications", "mark-all-read"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_role",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "organization_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "hospital_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "rescue_team_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "emergency_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
+

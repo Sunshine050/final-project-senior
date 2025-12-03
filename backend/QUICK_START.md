@@ -1,97 +1,98 @@
-# Quick Start Guide - รันระบบอย่างรวดเร็ว
+# 🚀 Quick Start Guide - สร้างบัญชีผู้ใช้และล็อกอิน
 
-## สำหรับ Demo หรือ Presentation
+## ❌ ปัญหา: "Invalid credentials"
 
-### ขั้นตอนที่ 1: รัน MongoDB (30 วินาที)
+ถ้าคุณได้รับ error นี้หมายความว่า **ยังไม่มีบัญชีผู้ใช้ในฐานข้อมูล**
+
+---
+
+## ✅ วิธีแก้: สร้างบัญชีผู้ใช้ก่อน
+
+### วิธีที่ 1: ใช้ Postman (แนะนำ) ⭐
+
+1. **Import Collection:**
+   - เปิด Postman
+   - Import ไฟล์ `guardian-dispatch/Emergency_Care_API.postman_collection.json`
+
+2. **ตั้งค่า Base URL:**
+   - คลิกที่ Collection → Variables
+   - ตั้งค่า `base_url` = `http://localhost:3000`
+
+3. **สร้างบัญชี:**
+   - เปิด folder **"🔐 Authentication"**
+   - รัน **"Register - Dispatcher"** (หรือ role อื่นที่ต้องการ)
+   - ✅ Token จะถูกบันทึกอัตโนมัติ!
+
+4. **ล็อกอิน:**
+   - รัน **"Login"** ด้วย email/password ที่สร้างไว้
+
+---
+
+### วิธีที่ 2: ใช้ cURL (Terminal)
+
+```bash
+# สร้างบัญชี Dispatcher
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "dispatcher@example.com",
+    "password": "password123",
+    "firstName": "สมชาย",
+    "lastName": "เจ้าหน้าที่",
+    "role": "dispatcher",
+    "phone": "+66812345678"
+  }'
+```
+
+---
+
+### วิธีที่ 3: ใช้ PowerShell Script
+
+```powershell
+cd backend
+.\create-test-user.ps1
+```
+
+---
+
+### วิธีที่ 4: ใช้ Bash Script
 
 ```bash
 cd backend
-docker-compose -f docker-compose.dev.yml up -d
+chmod +x create-test-user.sh
+./create-test-user.sh
 ```
 
-ตรวจสอบ:
+---
 
-```bash
-docker ps
-# ควรเห็น emergency-mongodb-dev
-```
+## 📝 ข้อมูลล็อกอินตัวอย่าง
 
-### ขั้นตอนที่ 2: ตั้งค่า Backend (ถ้ายังไม่มี .env)
+หลังจากสร้างบัญชีแล้ว ใช้ข้อมูลนี้ล็อกอิน:
 
-สร้างไฟล์ `backend/.env`:
+| Role | Email | Password |
+|------|-------|----------|
+| **Dispatcher** | `dispatcher@example.com` | `password123` |
+| **Hospital Staff** | `hospital@example.com` | `password123` |
+| **Rescue Team** | `rescue@example.com` | `password123` |
+| **Admin** | `admin@example.com` | `password123` |
 
-```env
-MONGODB_URI=mongodb://localhost:27017/emergency-care
-JWT_SECRET=demo-secret-key-change-in-production
-JWT_EXPIRES_IN=7d
-PORT=3000
-NODE_ENV=development
-```
+---
 
-### ขั้นตอนที่ 3: รัน Backend
+## 🔄 ขั้นตอนการทดสอบ
 
-```bash
-cd backend
-npm install  # ถ้ายังไม่ได้ติดตั้ง
-npm run start:dev
-```
+1. ✅ **Backend รันอยู่** (http://localhost:3000)
+2. ✅ **สร้างบัญชีผู้ใช้** (Register)
+3. ✅ **ล็อกอิน** (Login) - Token จะถูกบันทึกอัตโนมัติ
+4. ✅ **ทดสอบ API อื่นๆ** - Token จะถูกใช้โดยอัตโนมัติ
 
-รอจนเห็น: `Application is running on: http://localhost:3000`
+---
 
-### ขั้นตอนที่ 4: รัน Frontend (Terminal ใหม่)
+## 💡 Tips
 
-```bash
-cd frontend
-npm install  # ถ้ายังไม่ได้ติดตั้ง
-npm run dev
-```
+- **Postman Collection** จะบันทึก Token อัตโนมัติหลังจาก Register/Login
+- ไม่ต้องใส่ Token เองใน requests อื่นๆ
+- ถ้าต้องการเปลี่ยน role ให้ล็อกอินด้วย role นั้นใหม่
 
-รอจนเห็น: `Ready - started server on 0.0.0.0:3001`
+---
 
-### ขั้นตอนที่ 5: เปิด Browser
-
-- Frontend: http://localhost:3001
-- Backend API Docs: http://localhost:3000/api
-
-## ตรวจสอบฐานข้อมูล
-
-### ดูข้อมูลใน MongoDB
-
-```bash
-docker exec -it emergency-mongodb-dev mongosh emergency-care
-
-# แสดง collections
-show collections
-
-# แสดงข้อมูล
-db['emergency-requests'].find().pretty()
-db.users.find().pretty()
-```
-
-## หยุดระบบ
-
-```bash
-# หยุด MongoDB
-docker-compose -f docker-compose.dev.yml down
-
-# หยุด Backend/Frontend: กด Ctrl+C ใน terminal
-```
-
-## Troubleshooting
-
-### MongoDB ไม่รัน
-
-```bash
-docker-compose -f docker-compose.dev.yml restart
-```
-
-### Port ถูกใช้
-
-- Backend: เปลี่ยน PORT ใน .env
-- MongoDB: เปลี่ยน port ใน docker-compose.dev.yml
-
-### ต้องการลบข้อมูลทั้งหมด
-
-```bash
-docker-compose -f docker-compose.dev.yml down -v
-```
+**พร้อมใช้งานแล้ว! 🎉**
