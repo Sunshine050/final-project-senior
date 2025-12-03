@@ -51,12 +51,13 @@ export class SosService {
       priorityScore: this.calculatePriorityScore(createDto.severity),
     });
 
-    await emergency.save();
+    const savedEmergency = await emergency.save();
     
-    const responseDto = this.mapToResponseDto(emergency);
+    const emergencyDoc = savedEmergency as unknown as EmergencyRequestDocument;
+    const responseDto = this.mapToResponseDto(emergencyDoc);
 
     // Emit WebSocket event for new emergency
-    this.emitNewEmergency(emergency);
+    this.emitNewEmergency(emergencyDoc);
 
     return responseDto;
   }
@@ -179,15 +180,18 @@ export class SosService {
     const limit = query.limit || 20;
     const skip = (page - 1) * limit;
 
-    const [emergencies, total] = await Promise.all([
-      this.emergencyRequestModel
-        .find(filter)
-        .sort({ priorityScore: -1, createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .exec(),
-      this.emergencyRequestModel.countDocuments(filter).exec(),
-    ]);
+    // Use type assertion to avoid complex union type inference
+    const emergenciesResult = await (this.emergencyRequestModel
+      .find(filter)
+      .sort({ priorityScore: -1, createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .exec() as any) as EmergencyRequestDocument[];
+    
+    const totalResult = await (this.emergencyRequestModel.countDocuments(filter).exec() as any) as number;
+
+    const emergencies = emergenciesResult;
+    const total = totalResult;
 
     return {
       data: emergencies.map((e) => this.mapToResponseDto(e)),
@@ -197,7 +201,7 @@ export class SosService {
     };
   }
 
-  async getActiveEmergencies(hospitalId: string): Promise<EmergencyResponseDto[]> {
+  async getActiveEmergencies(hospitalId?: string): Promise<EmergencyResponseDto[]> {
     const activeStatuses = [
       EmergencyStatus.PENDING,
       EmergencyStatus.ASSIGNED,
@@ -206,16 +210,20 @@ export class SosService {
       EmergencyStatus.TRANSPORTING,
     ];
 
-    const emergencies = await this.emergencyRequestModel
-      .find({
-        status: { $in: activeStatuses },
-        $or: [
-          { assignedHospitalId: new Types.ObjectId(hospitalId) },
-          { assignedHospitalId: { $exists: false } },
-        ],
-      })
+    // Build filter condition
+    const filter: any = {
+      status: { $in: activeStatuses },
+    };
+
+    // Only filter by hospitalId if it's provided and valid
+    if (hospitalId && hospitalId.trim() !== '' && Types.ObjectId.isValid(hospitalId)) {
+      filter.assignedHospitalId = new Types.ObjectId(hospitalId);
+    }
+
+    const emergencies = await (this.emergencyRequestModel
+      .find(filter)
       .sort({ priorityScore: -1, createdAt: -1 })
-      .exec();
+      .exec() as any) as EmergencyRequestDocument[];
 
     return emergencies.map((e) => this.mapToResponseDto(e));
   }
@@ -242,10 +250,10 @@ export class SosService {
       throw new BadRequestException('Rescue team ID is required');
     }
 
-    const emergencies = await this.emergencyRequestModel
+    const emergencies = await (this.emergencyRequestModel
       .find(filter)
       .sort({ priorityScore: -1, createdAt: -1 })
-      .exec();
+      .exec() as any) as EmergencyRequestDocument[];
 
     return emergencies.map((e) => this.mapToResponseDto(e));
   }
@@ -296,7 +304,7 @@ export class SosService {
       throw new BadRequestException('Invalid emergency ID');
     }
 
-    const emergency = await this.emergencyRequestModel.findById(id).exec();
+    const emergency = (await this.emergencyRequestModel.findById(id).exec()) as EmergencyRequestDocument | null;
     if (!emergency) {
       throw new NotFoundException('Emergency not found');
     }

@@ -39,7 +39,7 @@ let SosController = class SosController {
         return this.sosService.getAllEmergencies(query);
     }
     async getActiveEmergencies(user) {
-        const organizationId = user.organizationId || '';
+        const organizationId = user.organizationId;
         return this.sosService.getActiveEmergencies(organizationId);
     }
     async getAssignedCases(user) {

@@ -123,22 +123,29 @@ export default function DispatcherDashboard() {
 
   return (
     <ProtectedRoute allowedRoles={[Role.DISPATCHER, Role.ADMIN]}>
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className="text-3xl font-extrabold text-gray-900 mb-8 select-none">
           Dashboard - เจ้าหน้าที่ 1669
         </h1>
 
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <h2 className="text-lg font-semibold mb-4">ตัวกรอง</h2>
-          <div className="grid grid-cols-2 gap-4">
+        {/* Filters */}
+        <section className="bg-white rounded-lg shadow p-6 mb-8">
+          <h2 className="text-xl font-semibold mb-5 text-gray-700 select-none">ตัวกรอง</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="statusFilter"
+                className="block mb-2 text-sm font-medium text-gray-600"
+              >
                 สถานะ
               </label>
               <select
+                id="statusFilter"
                 value={filters.status}
                 onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                  transition duration-150 ease-in-out"
               >
                 <option value="">ทั้งหมด</option>
                 {Object.values(EmergencyStatus).map((status) => (
@@ -149,13 +156,19 @@ export default function DispatcherDashboard() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="severityFilter"
+                className="block mb-2 text-sm font-medium text-gray-600"
+              >
                 ระดับความรุนแรง
               </label>
               <select
+                id="severityFilter"
                 value={filters.severity}
                 onChange={(e) => setFilters({ ...filters, severity: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                className="w-full border border-gray-300 rounded-md shadow-sm px-4 py-2
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                  transition duration-150 ease-in-out"
               >
                 <option value="">ทั้งหมด</option>
                 {Object.values(EmergencySeverity).map((severity) => (
@@ -166,37 +179,114 @@ export default function DispatcherDashboard() {
               </select>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold">รายการเคสฉุกเฉิน</h2>
+        {/* Emergency List */}
+        <section className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-800 select-none">รายการเคสฉุกเฉิน</h2>
+            <button
+              onClick={loadEmergencies}
+              className="text-blue-600 hover:text-blue-800 transition rounded-md px-3 py-1
+              border border-blue-600 hover:border-blue-800 font-medium select-none"
+              aria-label="รีเฟรชข้อมูลเคส"
+              title="รีเฟรชข้อมูลเคส"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <svg
+                  className="animate-spin h-5 w-5 mx-auto text-blue-600"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 010 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
+                  />
+                </svg>
+              ) : (
+                "รีเฟรช"
+              )}
+            </button>
           </div>
+
           {isLoading ? (
-            <div className="p-8 text-center">กำลังโหลด...</div>
+            <div className="p-12 flex justify-center items-center text-gray-500 space-x-2 select-none">
+              <svg
+                className="animate-spin h-8 w-8 text-blue-600"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 010 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
+                />
+              </svg>
+              <span className="text-lg font-medium">กำลังโหลดข้อมูล...</span>
+            </div>
           ) : emergencies.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">ไม่มีข้อมูล</div>
+            <div className="p-12 text-center text-gray-400 select-none">
+              ไม่มีเคสฉุกเฉินในขณะนี้
+            </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-h-[600px] scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-blue-400 scrollbar-track-gray-100">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="bg-blue-50 sticky top-0 z-10">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider select-none"
+                    >
                       ID
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider select-none"
+                    >
                       ผู้แจ้ง
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider select-none"
+                    >
                       ที่อยู่
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider select-none"
+                    >
                       ระดับความรุนแรง
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider select-none"
+                    >
                       สถานะ
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-semibold text-blue-800 uppercase tracking-wider select-none"
+                    >
                       วันที่
                     </th>
                   </tr>
@@ -205,23 +295,27 @@ export default function DispatcherDashboard() {
                   {emergencies.map((emergency) => (
                     <tr
                       key={emergency.id}
-                      className="hover:bg-gray-50 cursor-pointer"
+                      className="hover:bg-blue-50 cursor-pointer transition"
                       onClick={() => setSelectedEmergency(emergency)}
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") setSelectedEmergency(emergency);
+                      }}
+                      aria-label={`ดูรายละเอียดเคส ${emergency.id.slice(-8)}`}
                     >
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {emergency.id.slice(-8)}
+                        #{emergency.id.slice(-8)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {emergency.callerName}
-                        <br />
-                        <span className="text-gray-500">{emergency.callerPhone}</span>
+                        <div className="font-semibold">{emergency.callerName}</div>
+                        <div className="text-gray-500 text-xs select-text">{emergency.callerPhone}</div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                      <td className="px-6 py-4 max-w-xs truncate text-sm text-gray-900" title={emergency.address}>
                         {emergency.address}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
-                          className={`px-2 py-1 text-xs font-medium rounded-full ${getSeverityColor(
+                          className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${getSeverityColor(
                             emergency.severity
                           )}`}
                         >
@@ -230,7 +324,7 @@ export default function DispatcherDashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
-                          className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
+                          className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${getStatusColor(
                             emergency.status
                           )}`}
                         >
@@ -246,7 +340,7 @@ export default function DispatcherDashboard() {
               </table>
             </div>
           )}
-        </div>
+        </section>
 
         {selectedEmergency && (
           <EmergencyDetailModal
@@ -262,4 +356,3 @@ export default function DispatcherDashboard() {
     </ProtectedRoute>
   );
 }
-

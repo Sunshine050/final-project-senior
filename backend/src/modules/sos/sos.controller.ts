@@ -101,7 +101,7 @@ export class SosController {
   async getActiveEmergencies(
     @CurrentUser() user: JwtPayload,
   ): Promise<EmergencyResponseDto[]> {
-    const organizationId = user.organizationId || '';
+    const organizationId = user.organizationId;
     return this.sosService.getActiveEmergencies(organizationId);
   }
 

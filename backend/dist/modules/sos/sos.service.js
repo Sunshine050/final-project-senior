@@ -44,9 +44,10 @@ let SosService = class SosService {
             ],
             priorityScore: this.calculatePriorityScore(createDto.severity),
         });
-        await emergency.save();
-        const responseDto = this.mapToResponseDto(emergency);
-        this.emitNewEmergency(emergency);
+        const savedEmergency = await emergency.save();
+        const emergencyDoc = savedEmergency;
+        const responseDto = this.mapToResponseDto(emergencyDoc);
+        this.emitNewEmergency(emergencyDoc);
         return responseDto;
     }
     async assignEmergency(id, assignDto, dispatcherId) {
@@ -127,15 +128,15 @@ let SosService = class SosService {
         const page = query.page || 1;
         const limit = query.limit || 20;
         const skip = (page - 1) * limit;
-        const [emergencies, total] = await Promise.all([
-            this.emergencyRequestModel
-                .find(filter)
-                .sort({ priorityScore: -1, createdAt: -1 })
-                .skip(skip)
-                .limit(limit)
-                .exec(),
-            this.emergencyRequestModel.countDocuments(filter).exec(),
-        ]);
+        const emergenciesResult = await this.emergencyRequestModel
+            .find(filter)
+            .sort({ priorityScore: -1, createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .exec();
+        const totalResult = await this.emergencyRequestModel.countDocuments(filter).exec();
+        const emergencies = emergenciesResult;
+        const total = totalResult;
         return {
             data: emergencies.map((e) => this.mapToResponseDto(e)),
             total,
@@ -151,14 +152,14 @@ let SosService = class SosService {
             enums_1.EmergencyStatus.ON_SCENE,
             enums_1.EmergencyStatus.TRANSPORTING,
         ];
-        const emergencies = await this.emergencyRequestModel
-            .find({
+        const filter = {
             status: { $in: activeStatuses },
-            $or: [
-                { assignedHospitalId: new mongoose_2.Types.ObjectId(hospitalId) },
-                { assignedHospitalId: { $exists: false } },
-            ],
-        })
+        };
+        if (hospitalId && hospitalId.trim() !== '' && mongoose_2.Types.ObjectId.isValid(hospitalId)) {
+            filter.assignedHospitalId = new mongoose_2.Types.ObjectId(hospitalId);
+        }
+        const emergencies = await this.emergencyRequestModel
+            .find(filter)
             .sort({ priorityScore: -1, createdAt: -1 })
             .exec();
         return emergencies.map((e) => this.mapToResponseDto(e));
@@ -224,7 +225,7 @@ let SosService = class SosService {
         if (!mongoose_2.Types.ObjectId.isValid(id)) {
             throw new common_1.BadRequestException('Invalid emergency ID');
         }
-        const emergency = await this.emergencyRequestModel.findById(id).exec();
+        const emergency = (await this.emergencyRequestModel.findById(id).exec());
         if (!emergency) {
             throw new common_1.NotFoundException('Emergency not found');
         }

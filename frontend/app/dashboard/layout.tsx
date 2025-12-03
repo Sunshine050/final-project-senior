@@ -26,51 +26,60 @@ export default function DashboardLayout({
   };
 
   const getRoleColor = (role: string) => {
+    // ปรับเป็นสีเข้มขึ้นและ text สีขาว เพื่อ readability ดีขึ้น
     const colors: Record<string, string> = {
-      [Role.DISPATCHER]: "bg-blue-100 text-blue-800",
-      [Role.HOSPITAL_STAFF]: "bg-green-100 text-green-800",
-      [Role.RESCUE_TEAM]: "bg-orange-100 text-orange-800",
-      [Role.ADMIN]: "bg-purple-100 text-purple-800",
+      [Role.DISPATCHER]: "bg-blue-600 text-white",
+      [Role.HOSPITAL_STAFF]: "bg-green-600 text-white",
+      [Role.RESCUE_TEAM]: "bg-orange-600 text-white",
+      [Role.ADMIN]: "bg-purple-700 text-white",
     };
-    return colors[role] || "bg-gray-100 text-gray-800";
+    return colors[role] || "bg-gray-600 text-white";
   };
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50">
-        <nav className="bg-white border-b border-gray-200">
+      <div className="min-h-screen bg-gray-100">
+        <nav className="bg-white border-b border-gray-300 shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between h-16">
+            <div className="flex justify-between h-16 items-center">
               <div className="flex items-center">
-                <h1 className="text-xl font-bold text-gray-900">EMS 1669</h1>
+                <h1 className="text-2xl font-extrabold text-gray-900 select-none">
+                  EMS 1669
+                </h1>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-5">
                 {user && (
                   <>
-                    <div className="flex items-center gap-2">
-                      <User className="h-5 w-5 text-gray-400" />
-                      <span className="text-sm text-gray-700">
+                    <div className="flex items-center gap-3">
+                      <User className="h-6 w-6 text-gray-600" />
+                      <span className="text-base font-medium text-gray-800 select-text">
                         {user.firstName} {user.lastName}
                       </span>
                       <span
-                        className={`px-2 py-1 text-xs font-medium rounded-full ${getRoleColor(
+                        className={`px-3 py-1 text-sm font-semibold rounded-full ${getRoleColor(
                           user.role
                         )}`}
+                        title={getRoleLabel(user.role)}
                       >
                         {getRoleLabel(user.role)}
                       </span>
                     </div>
                     <button
                       onClick={() => router.push("/dashboard/notifications")}
-                      className="p-2 text-gray-400 hover:text-gray-600 relative"
+                      className="relative p-2 rounded-md text-gray-600 hover:text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      aria-label="แจ้งเตือน"
                     >
-                      <Bell className="h-5 w-5" />
+                      <Bell className="h-6 w-6" />
+                      {/* TODO: ถ้ามีแจ้งเตือนใหม่ สามารถเพิ่ม badge ตรงนี้ */}
                     </button>
                     <button
                       onClick={logout}
-                      className="p-2 text-gray-400 hover:text-gray-600"
+                      className="p-2 rounded-md text-gray-600 hover:text-gray-900
+                      focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                      aria-label="ออกจากระบบ"
                     >
-                      <LogOut className="h-5 w-5" />
+                      <LogOut className="h-6 w-6" />
                     </button>
                   </>
                 )}
@@ -78,11 +87,11 @@ export default function DashboardLayout({
             </div>
           </div>
         </nav>
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           {children}
         </main>
       </div>
     </ProtectedRoute>
   );
 }
-

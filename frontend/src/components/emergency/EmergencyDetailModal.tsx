@@ -22,7 +22,23 @@ export function EmergencyDetailModal({
   canAssign = false,
   canUpdateStatus = false,
 }: EmergencyDetailModalProps) {
-  if (!emergency) return null;
+  useEffect(() => {
+    console.log("[EmergencyDetailModal] Component mounted/updated:", {
+      emergencyId: emergency?.id,
+      status: emergency?.status,
+      patients: emergency?.patients,
+      patientsType: typeof emergency?.patients,
+      isPatientsArray: Array.isArray(emergency?.patients),
+      patientsLength: Array.isArray(emergency?.patients) ? emergency.patients.length : "N/A",
+      canAssign,
+      canUpdateStatus,
+    });
+  }, [emergency, canAssign, canUpdateStatus]);
+
+  if (!emergency) {
+    console.log("[EmergencyDetailModal] No emergency data, returning null");
+    return null;
+  }
 
   const getStatusColor = (status: EmergencyStatus) => {
     const colors: Record<string, string> = {
@@ -114,19 +130,25 @@ export function EmergencyDetailModal({
           {/* Patients */}
           <div>
             <h3 className="font-semibold text-gray-900 mb-2">
-              ข้อมูลผู้ป่วย ({emergency.patientCount} คน)
+              ข้อมูลผู้ป่วย ({emergency.patientCount || 0} คน)
             </h3>
             <div className="space-y-2">
-              {emergency.patients.map((patient, index) => (
-                <div key={index} className="bg-gray-50 rounded-lg p-4">
-                  <p className="font-medium">{patient.name || "ไม่ทราบชื่อ"}</p>
-                  <div className="text-sm text-gray-600 mt-1 space-x-4">
-                    {patient.age && <span>อายุ: {patient.age} ปี</span>}
-                    {patient.gender && <span>เพศ: {patient.gender}</span>}
-                    {patient.condition && <span>อาการ: {patient.condition}</span>}
+              {Array.isArray(emergency.patients) && emergency.patients.length > 0 ? (
+                emergency.patients.map((patient, index) => (
+                  <div key={index} className="bg-gray-50 rounded-lg p-4">
+                    <p className="font-medium">{patient.name || "ไม่ทราบชื่อ"}</p>
+                    <div className="text-sm text-gray-600 mt-1 space-x-4">
+                      {patient.age && <span>อายุ: {patient.age} ปี</span>}
+                      {patient.gender && <span>เพศ: {patient.gender}</span>}
+                      {patient.condition && <span>อาการ: {patient.condition}</span>}
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="bg-gray-50 rounded-lg p-4 text-gray-500 text-sm">
+                  ไม่มีข้อมูลผู้ป่วย
                 </div>
-              ))}
+              )}
             </div>
           </div>
 

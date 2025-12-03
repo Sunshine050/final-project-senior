@@ -22,7 +22,19 @@ export function EmergencyDetailModal({
   canAssign = false,
   canUpdateStatus = false,
 }: EmergencyDetailModalProps) {
-  if (!emergency) return null;
+  useEffect(() => {
+    console.log("[EmergencyDetailModal] Component mounted/updated:", {
+      emergencyId: emergency?.id,
+      status: emergency?.status,
+      canAssign,
+      canUpdateStatus,
+    });
+  }, [emergency, canAssign, canUpdateStatus]);
+
+  if (!emergency) {
+    console.log("[EmergencyDetailModal] No emergency data, returning null");
+    return null;
+  }
 
   const getStatusColor = (status: EmergencyStatus) => {
     const colors: Record<string, string> = {
@@ -47,13 +59,38 @@ export function EmergencyDetailModal({
     return colors[severity] || "bg-gray-100 text-gray-800";
   };
 
+  console.log("[EmergencyDetailModal] Render:", {
+    emergencyId: emergency.id,
+    status: emergency.status,
+    severity: emergency.severity,
+    patientCount: emergency.patientCount,
+    patients: emergency.patients,
+    patientsType: typeof emergency.patients,
+    isPatientsArray: Array.isArray(emergency.patients),
+    patientsLength: Array.isArray(emergency.patients)
+      ? emergency.patients.length
+      : "N/A",
+    hasAssignedHospital: !!emergency.assignedHospital,
+    hasAssignedRescueTeam: !!emergency.assignedRescueTeam,
+    canAssign,
+    canUpdateStatus,
+  });
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-900">รายละเอียดเคสฉุกเฉิน</h2>
+          <h2 className="text-xl font-bold text-gray-900">
+            รายละเอียดเคสฉุกเฉิน
+          </h2>
           <button
-            onClick={onClose}
+            onClick={() => {
+              console.log(
+                "[EmergencyDetailModal] Close button clicked, emergencyId:",
+                emergency.id
+              );
+              onClose();
+            }}
             className="text-gray-400 hover:text-gray-600"
           >
             <X className="h-5 w-5" />
@@ -90,17 +127,21 @@ export function EmergencyDetailModal({
             <h3 className="font-semibold text-gray-900 mb-2">ข้อมูลผู้แจ้ง</h3>
             <div className="bg-gray-50 rounded-lg p-4 space-y-2">
               <p>
-                <span className="text-gray-600">ชื่อ:</span> {emergency.callerName}
+                <span className="text-gray-600">ชื่อ:</span>{" "}
+                {emergency.callerName}
               </p>
               <p>
-                <span className="text-gray-600">เบอร์โทร:</span> {emergency.callerPhone}
+                <span className="text-gray-600">เบอร์โทร:</span>{" "}
+                {emergency.callerPhone}
               </p>
             </div>
           </div>
 
           {/* Location */}
           <div>
-            <h3 className="font-semibold text-gray-900 mb-2">สถานที่เกิดเหตุ</h3>
+            <h3 className="font-semibold text-gray-900 mb-2">
+              สถานที่เกิดเหตุ
+            </h3>
             <div className="bg-gray-50 rounded-lg p-4">
               <p className="text-gray-900">{emergency.address}</p>
               {emergency.latitude && emergency.longitude && (
@@ -114,19 +155,30 @@ export function EmergencyDetailModal({
           {/* Patients */}
           <div>
             <h3 className="font-semibold text-gray-900 mb-2">
-              ข้อมูลผู้ป่วย ({emergency.patientCount} คน)
+              ข้อมูลผู้ป่วย ({emergency.patientCount || 0} คน)
             </h3>
             <div className="space-y-2">
-              {emergency.patients.map((patient, index) => (
-                <div key={index} className="bg-gray-50 rounded-lg p-4">
-                  <p className="font-medium">{patient.name || "ไม่ทราบชื่อ"}</p>
-                  <div className="text-sm text-gray-600 mt-1 space-x-4">
-                    {patient.age && <span>อายุ: {patient.age} ปี</span>}
-                    {patient.gender && <span>เพศ: {patient.gender}</span>}
-                    {patient.condition && <span>อาการ: {patient.condition}</span>}
+              {Array.isArray(emergency.patients) &&
+              emergency.patients.length > 0 ? (
+                emergency.patients.map((patient, index) => (
+                  <div key={index} className="bg-gray-50 rounded-lg p-4">
+                    <p className="font-medium">
+                      {patient.name || "ไม่ทราบชื่อ"}
+                    </p>
+                    <div className="text-sm text-gray-600 mt-1 space-x-4">
+                      {patient.age && <span>อายุ: {patient.age} ปี</span>}
+                      {patient.gender && <span>เพศ: {patient.gender}</span>}
+                      {patient.condition && (
+                        <span>อาการ: {patient.condition}</span>
+                      )}
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="bg-gray-50 rounded-lg p-4 text-gray-500 text-sm">
+                  ไม่มีข้อมูลผู้ป่วย
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
@@ -148,7 +200,9 @@ export function EmergencyDetailModal({
           {/* Assigned Organizations */}
           {(emergency.assignedHospital || emergency.assignedRescueTeam) && (
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">หน่วยงานที่รับผิดชอบ</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">
+                หน่วยงานที่รับผิดชอบ
+              </h3>
               <div className="space-y-2">
                 {emergency.assignedHospital && (
                   <div className="bg-blue-50 rounded-lg p-4">
@@ -180,8 +234,14 @@ export function EmergencyDetailModal({
 
           {/* Timestamps */}
           <div className="text-sm text-gray-500 border-t pt-4">
-            <p>สร้างเมื่อ: {new Date(emergency.createdAt).toLocaleString("th-TH")}</p>
-            <p>อัปเดตล่าสุด: {new Date(emergency.updatedAt).toLocaleString("th-TH")}</p>
+            <p>
+              สร้างเมื่อ:{" "}
+              {new Date(emergency.createdAt).toLocaleString("th-TH")}
+            </p>
+            <p>
+              อัปเดตล่าสุด:{" "}
+              {new Date(emergency.updatedAt).toLocaleString("th-TH")}
+            </p>
           </div>
         </div>
 
@@ -222,15 +282,36 @@ function AssignEmergencyForm({
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    console.log(
+      "[AssignEmergencyForm] Component mounted, emergencyId:",
+      emergencyId
+    );
     loadOptions();
   }, []);
 
+  useEffect(() => {
+    console.log("[AssignEmergencyForm] State changed:", {
+      hospitalId,
+      rescueTeamId,
+      hospitalsCount: hospitals.length,
+      rescueTeamsCount: rescueTeams.length,
+      isLoading,
+    });
+  }, [hospitalId, rescueTeamId, hospitals, rescueTeams, isLoading]);
+
   const loadOptions = async () => {
     try {
+      console.log(
+        "[AssignEmergencyForm] loadOptions: Starting to load hospitals and rescue teams"
+      );
       const [hospitalsData, rescueTeamsData] = await Promise.all([
         api.getHospitals(),
         api.getRescueTeams(),
       ]);
+      console.log("[AssignEmergencyForm] loadOptions: Received data:", {
+        hospitalsData,
+        rescueTeamsData,
+      });
       // Handle both array and object with data property
       const hospitalsList = Array.isArray(hospitalsData)
         ? hospitalsData
@@ -242,20 +323,44 @@ function AssignEmergencyForm({
         : Array.isArray(rescueTeamsData?.data)
         ? rescueTeamsData.data
         : [];
+      console.log("[AssignEmergencyForm] loadOptions: Processed lists:", {
+        hospitalsCount: hospitalsList.length,
+        rescueTeamsCount: rescueTeamsList.length,
+      });
       setHospitals(hospitalsList);
       setRescueTeams(rescueTeamsList);
+      console.log(
+        "[AssignEmergencyForm] loadOptions: Successfully loaded options"
+      );
     } catch (error) {
-      console.error("Failed to load options:", error);
+      console.error(
+        "[AssignEmergencyForm] loadOptions: Failed to load options:",
+        error
+      );
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("[AssignEmergencyForm] handleSubmit: Form submitted:", {
+      emergencyId,
+      hospitalId: hospitalId || "none",
+      rescueTeamId: rescueTeamId || "none",
+    });
     setIsLoading(true);
     try {
       await onAssign(hospitalId || undefined, rescueTeamId || undefined);
+      console.log(
+        "[AssignEmergencyForm] handleSubmit: Successfully assigned emergency"
+      );
+    } catch (error) {
+      console.error(
+        "[AssignEmergencyForm] handleSubmit: Failed to assign emergency:",
+        error
+      );
     } finally {
       setIsLoading(false);
+      console.log("[AssignEmergencyForm] handleSubmit: Loading completed");
     }
   };
 
@@ -264,7 +369,14 @@ function AssignEmergencyForm({
       <div className="flex gap-3">
         <select
           value={hospitalId}
-          onChange={(e) => setHospitalId(e.target.value)}
+          onChange={(e) => {
+            const newValue = e.target.value;
+            console.log(
+              "[AssignEmergencyForm] Hospital selected:",
+              newValue || "none"
+            );
+            setHospitalId(newValue);
+          }}
           className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
         >
           <option value="">เลือกโรงพยาบาล</option>
@@ -276,7 +388,14 @@ function AssignEmergencyForm({
         </select>
         <select
           value={rescueTeamId}
-          onChange={(e) => setRescueTeamId(e.target.value)}
+          onChange={(e) => {
+            const newValue = e.target.value;
+            console.log(
+              "[AssignEmergencyForm] Rescue team selected:",
+              newValue || "none"
+            );
+            setRescueTeamId(newValue);
+          }}
           className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
         >
           <option value="">เลือกทีมกู้ชีพ</option>
@@ -306,26 +425,25 @@ function UpdateStatusForm({
   currentStatus: EmergencyStatus;
   onUpdate: (status: EmergencyStatus, notes?: string) => void;
 }) {
-  const [status, setStatus] = useState<EmergencyStatus>(currentStatus);
-  const [notes, setNotes] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    try {
-      await onUpdate(status, notes || undefined);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const getNextStatuses = (current: EmergencyStatus): EmergencyStatus[] => {
     const flow: Record<EmergencyStatus, EmergencyStatus[]> = {
-      [EmergencyStatus.PENDING]: [EmergencyStatus.ASSIGNED, EmergencyStatus.CANCELLED],
-      [EmergencyStatus.ASSIGNED]: [EmergencyStatus.EN_ROUTE, EmergencyStatus.CANCELLED],
-      [EmergencyStatus.EN_ROUTE]: [EmergencyStatus.ON_SCENE, EmergencyStatus.CANCELLED],
-      [EmergencyStatus.ON_SCENE]: [EmergencyStatus.TRANSPORTING, EmergencyStatus.CANCELLED],
+      [EmergencyStatus.PENDING]: [
+        EmergencyStatus.ASSIGNED,
+        EmergencyStatus.CANCELLED,
+      ],
+      [EmergencyStatus.ASSIGNED]: [
+        EmergencyStatus.EN_ROUTE,
+        EmergencyStatus.CANCELLED,
+      ],
+      [EmergencyStatus.EN_ROUTE]: [
+        EmergencyStatus.ON_SCENE,
+        EmergencyStatus.CANCELLED,
+      ],
+      [EmergencyStatus.ON_SCENE]: [
+        EmergencyStatus.TRANSPORTING,
+        EmergencyStatus.COMPLETED,
+        EmergencyStatus.CANCELLED,
+      ],
       [EmergencyStatus.TRANSPORTING]: [EmergencyStatus.COMPLETED],
       [EmergencyStatus.COMPLETED]: [],
       [EmergencyStatus.CANCELLED]: [],
@@ -334,6 +452,41 @@ function UpdateStatusForm({
   };
 
   const availableStatuses = getNextStatuses(currentStatus);
+
+  // Initialize with first available status (not currentStatus)
+  const [status, setStatus] = useState<EmergencyStatus>(
+    availableStatuses.length > 0 ? availableStatuses[0] : currentStatus
+  );
+  const [notes, setNotes] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Update status when currentStatus changes
+  useEffect(() => {
+    const nextStatuses = getNextStatuses(currentStatus);
+    if (nextStatuses.length > 0) {
+      setStatus(nextStatuses[0]);
+    }
+  }, [currentStatus]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Prevent submitting if status is same as current
+    if (status === currentStatus) {
+      alert("กรุณาเลือกสถานะใหม่ที่แตกต่างจากสถานะปัจจุบัน");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await onUpdate(status, notes || undefined);
+    } catch (error) {
+      console.error("Failed to update status:", error);
+      alert("เกิดข้อผิดพลาดในการอัปเดตสถานะ");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (availableStatuses.length === 0) {
     return null;
@@ -344,7 +497,16 @@ function UpdateStatusForm({
       <div className="flex gap-3">
         <select
           value={status}
-          onChange={(e) => setStatus(e.target.value as EmergencyStatus)}
+          onChange={(e) => {
+            const newStatus = e.target.value as EmergencyStatus;
+            console.log(
+              "[UpdateStatusForm] Status changed:",
+              currentStatus,
+              "->",
+              newStatus
+            );
+            setStatus(newStatus);
+          }}
           className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
         >
           {availableStatuses.map((s) => (
@@ -356,7 +518,14 @@ function UpdateStatusForm({
         <input
           type="text"
           value={notes}
-          onChange={(e) => setNotes(e.target.value)}
+          onChange={(e) => {
+            const newNotes = e.target.value;
+            console.log(
+              "[UpdateStatusForm] Notes changed, length:",
+              newNotes.length
+            );
+            setNotes(newNotes);
+          }}
           placeholder="หมายเหตุ (ถ้ามี)"
           className="flex-1 border border-gray-300 rounded-lg px-3 py-2"
         />
@@ -371,4 +540,3 @@ function UpdateStatusForm({
     </form>
   );
 }
-
